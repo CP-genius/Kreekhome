@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Listings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+  <style>
+      :root {
+    --primary: #2980b9;
+    --accent: #f39c12;
+    --text-dark: #333;
+    --text-light: #fff;
+    --bg-light: #f5f5f5;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  body {
+   
+    /* 👈 hide page initially */
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+  
+  header {
+    background: var(--primary);
+    color: var(--text-light);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+    color: white;
+  }
+  
+  nav a {
+    margin-left: 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+  }
+    h1 {
+      text-align: center;
+      color: #2980b9;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .filters input, .filters select {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    .filters button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .box {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 300px;
+      overflow: hidden;
+      
+    }
+    
+    .thumb img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .thumb p {
+      margin: 0;
+      padding: 0.5rem;
+      background: #f1f1f1;
+      font-size: 0.9rem;
+    }
+    .content {
+      padding: 0.5rem 1rem;
+    }
+    .no-results {
+      text-align: center;
+      font-style: italic;
+      color: #999;
+      padding: 2rem;
+    }
+    
+    #searchBtn{
+      background: var(--primary);
+      color: white;
+      
+border-radius: 0.5rem;
+border: 1px solid #ccc;
+transition: all 0.3s ease;
+    }
+    #searchInput,
+    #typeSelect,
+#minPrice,
+#maxPrice{
+ 
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  background: #fefefe;
+  transition: all 0.3s ease;
+}
+    /* Responsive styles for smaller screens */
+    @media screen and (max-width: 768px) {
+      .filters input, .filters select, .filters button {
+        max-width: 100%;
+      }
+
+      .results {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .box {
+        flex: 1 0 100%;
+        max-width: 100%;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .filters input, .filters select, .filters button {
+        font-size: 0.9rem;
+      }
+
+      .box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+  <header>
+    <h1>Kreek Homes®</h1>
+    <nav>
+      <a href="/index.html">Home</a>
+     
+      <a href="login.html">Log Out</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+
+<h1>Search Listings</h1>
+
+<div class="filters">
+  <input type="text" id="searchInput" placeholder="Enter location (e.g. Nairobi)" />
+  <select id="typeSelect">
+    <option value="">All Types</option>
+    <option value="house">House</option>
+    <option value="apartment">Apartment</option>
+    <option value="land">Land</option>
+    <option value="commercial">Commercial</option>
+  </select>
+  <input type="number" id="minPrice" placeholder="Min Price" />
+  <input type="number" id="maxPrice" placeholder="Max Price" />
+  <button id="searchBtn">Go</button>
+</div>
+
+<section class="results" id="resultsContainer"></section>
+
+<div style="text-align: center; margin: 20px;">
+  <button id="loadMoreBtn" style="display: none;">Load More</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getFirestore, collection, query, where, orderBy, limit, getDocs, startAfter } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDI3NCZ-bF_9hEbXAjkIX_1tuIYyfM4QNg",
+    authDomain: "real-estate-b0c92.firebaseapp.com",
+    projectId: "real-estate-b0c92"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const resultsContainer = document.getElementById("resultsContainer");
+  const searchBtn = document.getElementById("searchBtn");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+  let lastVisible = null;
+  let currentInput = "";
+  let currentType = "";
+  let currentMin = null;
+  let currentMax = null;
+
+  const pageSize = 6;
+
+  searchBtn.addEventListener("click", () => {
+    currentInput = document.getElementById("searchInput").value.trim().toLowerCase();
+    currentType = document.getElementById("typeSelect").value.trim().toLowerCase();
+    currentMin = parseInt(document.getElementById("minPrice").value) || null;
+    currentMax = parseInt(document.getElementById("maxPrice").value) || null;
+
+    lastVisible = null;
+    resultsContainer.innerHTML = "<p class='no-results'>Searching...</p>";
+    loadListings(true);
+  });
+
+  loadMoreBtn.addEventListener("click", () => loadListings(false));
+
+  async function loadListings(reset = false) {
+    try {
+      console.log("🔍 Starting listing load...");
+      
+      const listingsRef = collection(db, "listings");
+      let filters = [
+        where("status", "==", "active"),
+        orderBy("location_lower")
+      ];
+      
+      // Location filter
+      if (currentInput) {
+        console.log(`📍 Applying location filter for: ${currentInput}`);
+        filters.push(where("location_lower", ">=", currentInput));
+        filters.push(where("location_lower", "<=", currentInput + "\uf8ff"));
+      }
+      
+      // Build the query
+      let q = query(listingsRef, ...filters, limit(pageSize));
+      if (lastVisible) {
+        console.log("📌 Paginating with lastVisible:", lastVisible.id);
+        q = query(q, startAfter(lastVisible));
+      }
+      
+      const snapshot = await getDocs(q);
+      console.log(`📄 Raw Firestore documents returned: ${snapshot.size}`);
+      
+      if (reset) resultsContainer.innerHTML = "";
+      
+      if (snapshot.empty && reset) {
+        console.warn("⚠️ No documents matched Firestore query.");
+        resultsContainer.innerHTML = "<p class='no-results'>No listings found matching the filters.</p>";
+        loadMoreBtn.style.display = "none";
+        return;
+      }
+      
+      let addedCount = 0;
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        console.log(`📦 Document ID: ${doc.id}`, data);
+        
+        // Ensure expected fields exist
+        if (!data.location_lower || !data.price || !data.property_type) {
+          console.warn(`⚠️ Missing expected fields in document ${doc.id}`, data);
+        }
+        
+        // Apply client-side filters
+        const matchesType = !currentType || (data.property_type?.toLowerCase() === currentType);
+        const matchesPrice = (!currentMin || data.price >= currentMin) && (!currentMax || data.price <= currentMax);
+        
+        if (matchesType && matchesPrice) {
+          addedCount++;
+          const box = document.createElement("div");
+          box.className = "box";
+
+          // Create a clickable link that points to the details page with the listingId
+          const listingLink = document.createElement("a");
+          listingLink.href = `/viewads.html?id=${doc.id}`;
+          listingLink.style.textDecoration = "none";  // Remove default link styling
+          listingLink.style.color = "inherit";  // Ensure text color is inherited
+          
+          box.innerHTML = `
+            <div class="thumb">
+              <img src="${getImage(data.images?.[0])}" alt="Listing" />
+              <p><i class="fas fa-clock"></i> ${data.status}</p>
+            </div>
+            <div class="content">
+              <h3>${data.title || "Untitled"}</h3>
+              <p><i class="fas fa-map-marker-alt"></i> ${data.location || "Unknown"}</p>
+              <p><i class="fas fa-tag"></i>  ${formatPrice(data.price)} NAIRA</p>
+            </div>
+          `;
+          
+          // Append the listing box to the link
+          listingLink.appendChild(box);
+          
+          // Append the link to the results container
+          resultsContainer.appendChild(listingLink);
+        } else {
+          console.log(`⛔ Filtered out by client-side check: ${doc.id}`);
+        }
+      });
+      
+      lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      
+      if (addedCount === 0 && reset) {
+        console.warn("🔎 No listings passed client-side filters.");
+        resultsContainer.innerHTML = "<p class='no-results'>No listings match your filters.</p>";
+      }
+      
+      loadMoreBtn.style.display = addedCount < pageSize ? "none" : "inline-block";
+      
+    } catch (err) {
+      console.error("🔥 ERROR IN loadListings():", err.message);
+      console.error("Full error object:", err);
+      resultsContainer.innerHTML = `<p class="no-results">❌ Error: ${err.message}</p>`;
+      loadMoreBtn.style.display = "none";
+    }
+  }
+
+  function getImage(url) {
+    if (!url) return "https://placehold.co/400x250";
+    if (url.includes("cloudinary.com")) {
+      return url.replace("/upload/", "/upload/w_400,h_250,c_fill/");
+    }
+    return url;
+  }
+
+  function formatPrice(value) {
+    return value && !isNaN(value)
+      ? Number(value).toLocaleString("en-KE", { minimumFractionDigits: 0 })
+      : "0";
+  }
+</script>
+
+</body>
+</html>

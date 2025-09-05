@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seller Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2980b9;
+      --accent: #f39c12;
+      --text-dark: #333;
+      --text-light: #fff;
+      --bg-light: #f5f5f5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    nav a {
+      margin-left: 1.5rem;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    header {
+      background: var(--primary);
+      color: var(--text-light);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 2rem;
+    }
+
+    .form-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+      padding: 2rem;
+    }
+
+    .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-box h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-box input {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .form-box button {
+      width: 100%;
+      padding: 1rem;
+      background: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .form-box button:hover {
+      background: #1a5d8f;
+    }
+
+    .form-box p {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .form-box a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>RealEstate Pro</h1>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/register.html">Sign Up</a>
+    <a href="/login.html">Log In</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<div class="form-container">
+  <form class="form-box" id="sellerRegisterForm">
+    <h2>Seller Registration</h2>
+    <label for="image">Upload Profile Picture</label>
+    <input type="file" id="image" accept="image/*" required />
+    <input type="text" placeholder="Full Name" id="name" required />
+    <input type="email" placeholder="Email Address" id="email" required />
+    <input type="tel" placeholder="Phone Number" id="phone" required />
+    <input type="password" placeholder="Password" id="password" required />
+    <input type="password" placeholder="Confirm Password" id="confirmPassword" required />
+    <button type="submit">Register</button>
+    <p>Already have an account? <a href="login.html">Login here</a></p>
+    <div class="message" id="message"></div>
+  </form>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+  // ✅ Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDI3NCZ-bF_9hEbXAjkIX_1tuIYyfM4QNg",
+    authDomain: "real-estate-b0c92.firebaseapp.com",
+    projectId: "real-estate-b0c92",
+    storageBucket: "real-estate-b0c92.appspot.com",
+    messagingSenderId: "708869112975",
+    appId: "1:708869112975:web:f5ccfce02b74a23553dcfa"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const form = document.getElementById("sellerRegisterForm");
+  const msg = document.getElementById("message");
+
+  const cloudName = "dpl0ivvfv";
+  const uploadPreset = "realestate_pics";
+
+  async function uploadImageToCloudinary(file) {
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    return data.secure_url;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "";
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const imageFile = document.getElementById("image").files[0];
+
+    if (password !== confirmPassword) {
+      msg.textContent = "❌ Passwords do not match.";
+      return;
+    }
+
+    try {
+      // Upload image
+      msg.textContent = "⏳ Uploading image...";
+      const imageUrl = await uploadImageToCloudinary(imageFile);
+
+      // Create user
+      msg.textContent = "⏳ Creating account...";
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save user info to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        phone,
+        profileImage: imageUrl,
+        createdAt: new Date()
+      });
+
+      // Send email verification
+      await sendEmailVerification(user);
+
+      msg.textContent = "✅ Registration successful! Please check your email to verify your account.";
+      form.reset();
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 4000);
+    } catch (error) {
+      msg.textContent = `❌ Error: ${error.message}`;
+      console.error(error);
+    }
+  });
+</script>
+</body>
+</html>

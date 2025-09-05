@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seller Profile</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .profile-container {
+      max-width: 600px;
+      margin: 4rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .profile-container h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+
+    .profile-pic {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #2980b9;
+      margin: 0 auto 2rem;
+      display: block;
+    }
+
+    .profile-info {
+      font-size: 1.6rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-info strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .whatsapp-link {
+      display: block;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 1.6rem;
+      background: #25D366;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    .whatsapp-link:hover {
+      background: #1ebc5a;
+    }
+
+    @media (max-width: 600px) {
+      .profile-container {
+        margin: 2rem;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="profile-container">
+  <h2>Seller Profile</h2>
+  <img src="../images/profile-placeholder.jpg" alt="Seller Photo" class="profile-pic" id="profilePhoto">
+
+  <div class="profile-info">
+    <strong>Name:</strong>
+    <span id="sellerName">John Doe</span>
+  </div>
+
+  <div class="profile-info">
+    <strong>Phone Number:</strong>
+    <span id="sellerPhone">+1234567890</span>
+  </div>
+
+  <div class="profile-info">
+    <strong>Email:</strong>
+    <span id="sellerEmail">johndoe@email.com</span>
+  </div>
+
+  <a class="whatsapp-link" id="whatsappLink" target="_blank">
+    Message on WhatsApp
+  </a>
+</div>
+
+<!-- Future JavaScript for dynamic content from Firebase or API -->
+<script>
+  // Example data (replace with Firebase/DB data)
+  const seller = {
+    name: "John Doe",
+    phone: "+1234567890",
+    email: "johndoe@email.com",
+    photo: "../images/profile-placeholder.jpg",
+    whatsapp: "+1234567890"
+  };
+
+  // Populate the profile
+  document.getElementById("sellerName").textContent = seller.name;
+  document.getElementById("sellerPhone").textContent = seller.phone;
+  document.getElementById("sellerEmail").textContent = seller.email;
+  document.getElementById("profilePhoto").src = seller.photo;
+  document.getElementById("whatsappLink").href = `https://wa.me/${seller.whatsapp.replace(/[^0-9]/g, "")}`;
+</script>
+
+</body>
+</html>

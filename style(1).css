@@ -1,0 +1,78 @@
+/* Global Styles */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+/* Container */
+.edit-profile-container {
+    background-color: white;
+    width: 50%;
+    margin: 5rem auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styling */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
+    font-size: 1.4rem;
+    color: #333;
+}
+
+input[type="text"], input[type="email"], input[type="tel"], input[type="file"] {
+    padding: 1rem;
+    font-size: 1.6rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background-color: #f9f9f9;
+}
+
+input[type="file"] {
+    background-color: #fff;
+    padding: 0.5rem;
+}
+
+input[type="file"]:hover {
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    padding: 1rem;
+    font-size: 1.6rem;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #1f6f9b;
+}
+
+@media (max-width: 768px) {
+    .edit-profile-container {
+        width: 80%;
+    }
+}
