@@ -146,7 +146,21 @@ button#loadMoreBtn {
   border-radius: 4px;
   cursor: pointer;
 }
+/* For larger screens, force a single column */
+@media (min-width: 768px) {
+  .box-container {
+    display: block; /* Force the items to stack vertically */
+  }
+}
 
+/* For smaller screens (mobile and tablets), keep grid layout */
+@media (max-width: 768px) {
+  .box-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Grid for smaller screens */
+    gap: 1.2rem;
+  }
+}
 /* 🔁 Responsive tweaks */
 @media (max-width: 600px) {
   .header {
