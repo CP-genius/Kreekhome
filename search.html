@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Ads</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+  <style>
+      :root {
+    --primary: #2980b9;
+    --accent: #f39c12;
+    --text-dark: #333;
+    --text-light: #fff;
+    --bg-light: #f5f5f5;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  body {
+   
+    /* 👈 hide page initially */
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+  
+  header {
+background: var(--primary, #2980b9);
+color: white;
+padding: 1rem 2rem;
+}
+
+.header-container {
+display: flex;
+align-items: center;
+justify-content: space-between;
+max-width: 1200px;
+margin: 0;
+flex-wrap: wrap;
+
+
+}
+
+display: flex;
+align-items: center;
+font-size: 1.8rem;
+font-weight: bold;
+gap: 0.5rem; /* spacing between icon and text */
+}
+
+.logo i {
+color: var(--accent); /* Optional: use your accent color */
+font-size: 1.5rem;
+}
+
+/* Optional: shrink logo font size slightly on small screens */
+@media (max-width: 600px) {
+.logo {
+font-size: 1.4rem;
+}
+
+.logo i {
+font-size: 1.2rem;
+}
+}
+
+.nav-links {
+display: flex;
+gap: 1.rem;
+margin-right: 0;
+}
+
+.nav-links a {
+color: white;
+text-decoration: none;
+font-weight: 600;
+margin: 10px;
+
+}
+
+/* Hamburger button (hidden on desktop) */
+.hamburger {
+display: none;
+font-size: 2rem;
+background: none;
+border: none;
+color: white;
+cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+.hamburger {
+display: block;
+}
+
+.nav-links {
+display: none;
+flex-direction: column;
+width: 100%;
+background: var(--primary, #2980b9);
+margin-top: 1rem;
+}
+
+.nav-links.show {
+display: flex;
+}
+
+.nav-links a {
+padding: 0.75rem 1rem;
+border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo {
+flex: none;
+}
+
+.header-container {
+flex-direction: column;
+align-items: flex-start;
+}
+}header {
+background: var(--primary, #2980b9);
+color: white;
+padding: 1rem 2rem;
+}
+
+.header-container {
+display: flex;
+align-items: center;
+justify-content: space-between;
+max-width: 1200px;
+margin: 0;
+flex-wrap: wrap;
+
+
+}
+
+display: flex;
+align-items: center;
+font-size: 1.8rem;
+font-weight: bold;
+gap: 0.5rem; /* spacing between icon and text */
+}
+
+.logo i {
+color: var(--accent); /* Optional: use your accent color */
+font-size: 1.5rem;
+}
+
+/* Optional: shrink logo font size slightly on small screens */
+@media (max-width: 600px) {
+.logo {
+font-size: 1.4rem;
+}
+
+.logo i {
+font-size: 1.2rem;
+}
+}
+
+.nav-links {
+display: flex;
+gap: 1.rem;
+margin-right: 0;
+}
+
+.nav-links a {
+color: white;
+text-decoration: none;
+font-weight: 600;
+margin: 10px;
+
+}
+
+/* Hamburger button (hidden on desktop) */
+.hamburger {
+display: none;
+font-size: 2rem;
+background: none;
+border: none;
+color: white;
+cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+.hamburger {
+display: block;
+}
+
+.nav-links {
+display: none;
+flex-direction: column;
+width: 100%;
+background: var(--primary, #2980b9);
+margin-top: 1rem;
+}
+
+.nav-links.show {
+display: flex;
+}
+
+.nav-links a {
+padding: 0.75rem 1rem;
+border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo {
+flex: none;
+}
+
+.header-container {
+flex-direction: column;
+align-items: flex-start;
+}
+}
+      #loadMoreBtn{
+    background: black;
+    color: white;
+    padding: 1rem;
+    }
+  header h1 {
+    font-size: 2rem;
+    color: white;
+  }
+  
+  nav a {
+    margin-left: 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  
+    h1 {
+      text-align: center;
+      color: #2980b9;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .filters input, .filters select {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    .filters button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .box {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 300px;
+      overflow: hidden;
+      
+    }
+    
+    .thumb img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .thumb p {
+      margin: 0;
+      padding: 0.5rem;
+      background: #f1f1f1;
+      font-size: 0.9rem;
+    }
+    .content {
+      padding: 0.5rem 1rem;
+    }
+    .no-results {
+      text-align: center;
+      font-style: italic;
+      color: #999;
+      padding: 2rem;
+    }
+    
+    #searchBtn{
+      background: var(--primary);
+      color: white;
+      
+border-radius: 0.5rem;
+border: 1px solid #ccc;
+transition: all 0.3s ease;
+    }
+    #searchInput,
+    #typeSelect,
+#minPrice,
+#maxPrice{
+ 
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  background: #fefefe;
+  transition: all 0.3s ease;
+}
+    /* Responsive styles for smaller screens */
+    @media screen and (max-width: 768px) {
+      .filters input, .filters select, .filters button {
+        max-width: 100%;
+      }
+
+      .results {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .box {
+        flex: 1 0 100%;
+        max-width: 100%;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .filters input, .filters select, .filters button {
+        font-size: 0.9rem;
+      }
+
+      .box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+ <header>
+  <div class="header-container">
+    <h1 class="logo">
+      <i class="fas fa-home"></i> Kreek Home
+    </h1>
+    <button class="hamburger" aria-label="Toggle navigation">
+      &#9776;
+    </button>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+    
+      
+    </nav>
+  </div>
+</header>
+
+
+<h1>Search Listings</h1>
+
+<div class="filters">
+  <input type="text" id="searchInput" placeholder="Enter location (e.g. Nairobi)" />
+  <select id="typeSelect">
+    <option value="">All Types</option>
+    <option value="house">House</option>
+    <option value="apartment">Apartment</option>
+    <option value="land">Land</option>
+    <option value="commercial">Commercial</option>
+  </select>
+  <input type="number" id="minPrice" placeholder="Min Price" />
+  <input type="number" id="maxPrice" placeholder="Max Price" />
+  <button id="searchBtn">Go</button>
+</div>
+
+<section class="results" id="resultsContainer"></section>
+
+<div style="text-align: center; margin: 20px;">
+  <button id="loadMoreBtn" style="display: none;">Load More</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    orderBy,
+    getDocs,
+    limit,
+    startAfter
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyDI3NCZ-bF_9hEbXAjkIX_1tuIYyfM4QNg",
+    authDomain: "real-estate-b0c92.firebaseapp.com",
+    projectId: "real-estate-b0c92"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  
+  const resultsContainer = document.getElementById("resultsContainer");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+  
+  let allListings = [];
+  let lastVisible = null;
+  let isEndOfList = false;
+  const PAGE_SIZE = 12;
+  
+  // Load first batch on page load
+  document.addEventListener("DOMContentLoaded", async () => {
+    await loadListings(true);
+    
+    // Attach filter listeners
+    document.getElementById("searchInput").addEventListener("input", applyFilters);
+    document.getElementById("typeSelect").addEventListener("change", applyFilters);
+    document.getElementById("minPrice").addEventListener("input", applyFilters);
+    document.getElementById("maxPrice").addEventListener("input", applyFilters);
+  });
+  
+  // Load more button
+  loadMoreBtn.addEventListener("click", async () => {
+    await loadListings(false);
+  });
+  
+  // Fetch listings from Firestore
+  async function loadListings(initialLoad = false) {
+    if (isEndOfList) return;
+    
+    try {
+      if (initialLoad) {
+        allListings = [];
+        lastVisible = null;
+        isEndOfList = false;
+        resultsContainer.innerHTML = "<p class='no-results'>Loading listings...</p>";
+      }
+      
+      const listingsRef = collection(db, "listings");
+      let q = query(
+        listingsRef,
+        where("status", "==", "active"),
+        orderBy("location_lower"),
+        ...(lastVisible ? [startAfter(lastVisible)] : []),
+        limit(PAGE_SIZE)
+      );
+      
+      const snapshot = await getDocs(q);
+      
+      if (initialLoad) resultsContainer.innerHTML = "";
+      
+      if (snapshot.empty) {
+        isEndOfList = true;
+        if (initialLoad) {
+          resultsContainer.innerHTML = "<p class='no-results'>No listings available.</p>";
+        }
+        loadMoreBtn.style.display = "none";
+        return;
+      }
+      
+      lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      
+      const newListings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      allListings = [...allListings, ...newListings];
+      
+      applyFilters(); // Use filtered display
+      
+      loadMoreBtn.style.display = snapshot.size < PAGE_SIZE ? "none" : "inline-block";
+    } catch (err) {
+      console.error("❌ Error loading listings:", err.message);
+      resultsContainer.innerHTML = `<p class="no-results">Error: ${err.message}</p>`;
+    }
+  }
+  
+  // Filter and show matching listings
+  function applyFilters() {
+    const searchInput = document.getElementById("searchInput").value.trim().toLowerCase();
+    const typeSelect = document.getElementById("typeSelect").value.trim().toLowerCase();
+    const minPrice = parseInt(document.getElementById("minPrice").value) || null;
+    const maxPrice = parseInt(document.getElementById("maxPrice").value) || null;
+    
+    const filtered = allListings.filter(listing => {
+      const matchesLocation = !searchInput || listing.location?.toLowerCase().includes(searchInput);
+      const matchesType = !typeSelect || listing.property_type?.toLowerCase() === typeSelect;
+      const matchesPrice =
+        (!minPrice || listing.price >= minPrice) &&
+        (!maxPrice || listing.price <= maxPrice);
+      
+      return matchesLocation && matchesType && matchesPrice;
+    });
+    
+    displayListings(filtered);
+  }
+  
+  // Display listings
+  function displayListings(listings) {
+    resultsContainer.innerHTML = "";
+    
+    if (listings.length === 0) {
+      resultsContainer.innerHTML = "<p class='no-results'>No listings match your filters.</p>";
+      return;
+    }
+    
+    listings.forEach(listing => {
+      const box = document.createElement("div");
+      box.className = "box";
+      
+      const listingLink = document.createElement("a");
+      listingLink.href = `/viewads.html?id=${listing.id}`;
+      listingLink.style.textDecoration = "none";
+      listingLink.style.color = "inherit";
+      
+      box.innerHTML = `
+        <div class="thumb">
+          <img src="${getImage(listing.images?.[0])}" alt="Listing" />
+          <p><i class="fas fa-clock"></i> ${listing.status}</p>
+        </div>
+        <div class="content">
+          <h3>${listing.title || "Untitled"}</h3>
+          <p><i class="fas fa-map-marker-alt"></i> ${listing.location || "Unknown"}</p>
+          <p><i class="fas fa-tag"></i> ${formatPrice(listing.price)} NAIRA</p>
+        </div>
+      `;
+      
+      listingLink.appendChild(box);
+      resultsContainer.appendChild(listingLink);
+    });
+  }
+  
+  // Format price
+  function formatPrice(value) {
+    return value && !isNaN(value) ?
+      Number(value).toLocaleString("en-KE", { minimumFractionDigits: 0 }) :
+      "0";
+  }
+  
+  // Handle image formatting
+  function getImage(url) {
+    if (!url) return "https://placehold.co/400x250";
+    if (url.includes("cloudinary.com")) {
+      return url.replace("/upload/", "/upload/w_400,h_250,c_fill/");
+    }
+    return url;
+  }
+</script>
+
+<script>
+  const hamburger = document.querySelector(".hamburger");
+  const navLinks = document.querySelector(".nav-links");
+  
+  hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("show");
+  });
+</script>
+</body>
+</html>

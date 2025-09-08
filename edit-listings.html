@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Ads</title>
+  <link rel="stylesheet" href="clist.css" />
+</head>
+<body>
+  <header>
+    <h1>Kreek Home</h1>
+    <nav>
+      
+      <a href="#" id="logoutBtn">Log Out</a>
+    </nav>
+  </header>
+
+  <section class="form-container">
+    <form id="listingForm" enctype="multipart/form-data">
+      <h3>Edit Property Listing</h3>
+
+      <input type="text" name="title" class="box" required placeholder="Property Title" />
+      <input type="number" name="price" class="box" required placeholder="Price (NAIRA)" />
+      <input type="text" name="location" class="box" required placeholder="Location: Town,City,State" />
+      <small class="note">Format:  Town,City,State</small>
+
+      <select name="property_type" required>
+        <option value="" disabled selected>Select Property Type</option>
+        <option value="house">House</option>
+        <option value="apartment">Apartment</option>
+        <option value="land">Land</option>
+        <option value="commercial">Commercial</option>
+      </select>
+
+      <textarea name="description" class="box" required placeholder="Description of the property"></textarea>
+
+      <label for="imageInput" class="upload-label">Upload Images</label>
+      <input type="file" name="images[]" id="imageInput" accept="image/*" multiple />
+      <small class="note">Max 6 images, each under 2MB</small>
+
+      <div id="imagePreviewContainer" class="image-preview-container"></div>
+
+      <div class="form-group">
+        <label for="video" class="vid">Upload Video</label>
+        <input type="file" name="video" id="video" accept="video/*" />
+      </div>
+
+      <div class="video-preview" id="video-preview"></div>
+
+      <input type="text" name="contact" class="box" placeholder="Contact Number" required />
+      <input type="submit" value="Save Changes" name="submit" class="btn" />
+      <div id="statusText" style="margin-top: 10px; font-weight: bold; color: #333;"></div>
+    </form>
+  </section>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDI3NCZ-bF_9hEbXAjkIX_1tuIYyfM4QNg",
+    authDomain: "real-estate-b0c92.firebaseapp.com",
+    projectId: "real-estate-b0c92",
+    storageBucket: "real-estate-b0c92.appspot.com",
+    messagingSenderId: "708869112975",
+    appId: "1:708869112975:web:f5ccfce02b74a23553dcfa"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const listingId = new URLSearchParams(window.location.search).get("id"); // Get listing ID from URL
+  const form = document.getElementById("listingForm");
+  const statusText = document.getElementById("statusText");
+
+  // Load the listing data to populate the form
+  async function loadListingData() {
+    const docRef = doc(db, "listings", listingId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      form.title.value = data.title;
+      form.price.value = data.price;
+      form.location.value = data.location;
+      form.property_type.value = data.property_type;
+      form.description.value = data.description;
+      form.contact.value = data.contact;
+
+      // You can add image/video preview loading here if needed
+    } else {
+      alert("Listing not found!");
+    }
+  }
+
+  // Call loadListingData on page load
+  loadListingData();
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    statusText.textContent = "⏳ Saving changes...";
+    const submitBtn = form.querySelector('input[type="submit"]');
+    submitBtn.disabled = true;
+
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not authenticated.");
+
+      const images = document.getElementById("imageInput").files;
+      const imageUrls = [];
+
+      if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          // Upload image to cloudinary or any other image hosting service
+          // Add logic to upload image and get the URL
+          // Example: imageUrls.push(await uploadToCloudinary(images[i]));
+        }
+      }
+
+      let videoUrl = "";
+      const videoFile = document.getElementById("video").files[0];
+      if (videoFile) {
+        // Upload video to cloudinary or any other video hosting service
+        // Example: videoUrl = await uploadToCloudinary(videoFile);
+      }
+
+      const updatedListing = {
+        title: form.title.value,
+        price: parseFloat(form.price.value),
+        location: form.location.value,
+        property_type: form.property_type.value,
+        description: form.description.value,
+        images: imageUrls,
+        video: videoUrl,
+        contact: form.contact.value,
+        userId: user.uid,
+        status: "active", // You can allow the user to change the status if necessary
+      };
+
+      const docRef = doc(db, "listings", listingId);
+      await updateDoc(docRef, updatedListing);
+
+      statusText.textContent = "✅ Listing updated successfully!";
+      setTimeout(() => {
+        window.location.href = "my-listings.html"; // Redirect to the user's listing page
+      }, 1500);
+      
+    } catch (error) {
+      statusText.textContent = "❌ " + error.message;
+      submitBtn.disabled = false;
+    }
+  });
+
+</script>
+
+<script type="module">
+  // Logout functionality (same as your previous script)
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  logoutBtn.addEventListener("click", async (e) => {
+    e.preventDefault(); // prevent link navigation
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      alert("Logged out!");
+      window.location.href = "login.html"; // redirect after logout
+    } catch (error) {
+      alert("Logout failed: " + error.message);
+    }
+  });
+</script>
+
+</body>
+</html>
