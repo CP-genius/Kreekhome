@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kreek Home - Find Your Dream Home</title>
   
-  <!-- Existing ad script -
+  <!-- Existing ad script -->
+  <script src="https://quge5.com/88/tag.min.js" data-zone="190387" async data-cfasync="false"></script>
   
   <!-- Adsterra Modal Styles -->
   <style>
-    /* Ad Modal Styles - Add these to your existing styles */
+    /* Ad Modal Styles */
     .ad-modal {
       display: none;
       position: fixed;
@@ -17,7 +18,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.9);
       z-index: 9999;
       justify-content: center;
       align-items: center;
@@ -29,26 +30,26 @@
       width: 90%;
       max-width: 420px;
       overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-      animation: modalSlideIn 0.4s ease;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: modalSlideIn 0.3s ease;
     }
 
     @keyframes modalSlideIn {
-      from { opacity: 0; transform: translateY(-40px) scale(0.95); }
+      from { opacity: 0; transform: translateY(-30px) scale(0.95); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .modal-header {
       background: linear-gradient(135deg, #2980b9, #2c3e50);
       color: white;
-      padding: 18px 25px;
+      padding: 15px 20px;
       text-align: center;
       position: relative;
     }
 
     .modal-header h3 {
       margin: 0;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 600;
     }
 
@@ -57,10 +58,10 @@
       right: 15px;
       top: 50%;
       transform: translateY(-50%);
-      background: none;
+      background: rgba(255,255,255,0.2);
       border: none;
       color: white;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       cursor: pointer;
       width: 30px;
       height: 30px;
@@ -68,22 +69,22 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
 
     .close-modal:hover {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.3);
     }
 
     .ad-container {
-      padding: 25px;
+      padding: 20px;
       text-align: center;
-      min-height: 320px;
+      min-height: 300px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #f8f9fa;
+      background: #f5f5f5;
     }
 
     #modal-ad {
@@ -96,16 +97,8 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .ad-note {
-      margin-top: 15px;
-      color: #666;
-      font-size: 13px;
-      max-width: 300px;
-      line-height: 1.5;
-    }
-
     .modal-footer {
-      padding: 20px 25px;
+      padding: 15px 20px;
       text-align: center;
       border-top: 1px solid #eee;
       background: #fafafa;
@@ -115,49 +108,34 @@
       background: linear-gradient(135deg, #f39c12, #e67e22);
       color: white;
       border: none;
-      padding: 14px 35px;
+      padding: 12px 30px;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
       display: inline-flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .continue-btn:hover {
-      background: linear-gradient(135deg, #e67e22, #d35400);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(243, 156, 18, 0.4);
+      width: 100%;
+      justify-content: center;
     }
 
     .continue-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      transform: none;
     }
 
-    .skip-ad {
-      display: block;
-      margin-top: 12px;
-      color: #7f8c8d;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
+    .continue-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #e67e22, #d35400);
     }
 
-    .skip-ad:hover {
-      color: #2980b9;
-      text-decoration: underline;
-    }
-
-    /* Timer countdown */
     .timer {
-      font-size: 0.85rem;
-      color: #e74c3c;
-      font-weight: 600;
+      font-size: 0.8rem;
+      background: #e74c3c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
       margin-left: 5px;
     }
 
@@ -176,10 +154,6 @@
       #modal-ad {
         height: 500px;
       }
-      
-      .ad-container {
-        min-height: 280px;
-      }
     }
 
     @media (max-width: 400px) {
@@ -193,7 +167,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   
   <style>
-    /* Your existing styles below - KEEP THESE */
+    /* Your existing styles */
     :root {
       --primary: #2980b9;
       --accent: #f39c12;
@@ -257,6 +231,7 @@
       color: white;
       text-decoration: none;
       font-weight: 600;
+      cursor: pointer;
     }
 
     .hamburger {
@@ -293,7 +268,7 @@
       text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
     }
 
-    .hero a {
+    .hero a, .contact a {
       background: var(--accent);
       color: var(--text-light);
       padding: 1rem 2rem;
@@ -302,9 +277,10 @@
       border-radius: 0.5rem;
       display: inline-block;
       transition: all 0.3s;
+      cursor: pointer;
     }
 
-    .hero a:hover {
+    .hero a:hover, .contact a:hover {
       background: #e67e22;
       transform: translateY(-3px);
     }
@@ -345,15 +321,6 @@
     .contact h3 {
       font-size: 2rem;
       margin-bottom: 1rem;
-    }
-
-    .contact a {
-      background: var(--accent);
-      color: var(--text-light);
-      padding: 1rem 2rem;
-      text-decoration: none;
-      font-weight: 600;
-      border-radius: 0.5rem;
     }
 
     footer {
@@ -418,9 +385,9 @@
       &#9776;
     </button>
     <nav class="nav-links">
-      <a href="/index.html">Home</a>
-      <a href="register.html">Sign Up</a>
-      <a href="login.html">Log In</a>
+      <a href="#" data-link="index.html">Home</a>
+      <a href="#" data-link="register.html">Sign Up</a>
+      <a href="#" data-link="login.html">Log In</a>
     </nav>
   </div>
 </header>
@@ -429,8 +396,7 @@
   <div>
     <h2>Find Your Dream Home</h2>
     <p>Explore the best properties in your city at the best price</p>
-    <!-- Changed to button for modal trigger -->
-    <a href="#" id="browseListingsBtn" class="browse-btn">
+    <a href="#" id="browseListingsBtn">
       <i class="fas fa-search"></i> Browse Listings
     </a>
   </div>
@@ -453,7 +419,7 @@
 
 <section id="contact" class="contact">
   <h3>Looking to Rent or Sell?</h3>
-  <a href="/register.html">Register</a>
+  <a href="#" data-link="register.html">Register</a>
 </section>
 
 <footer>
@@ -472,18 +438,14 @@
       <div id="modal-ad">
         <!-- Adsterra ad will load here -->
       </div>
-      <p class="ad-note">
-        Viewing this brief advertisement helps us provide free real estate services
-      </p>
     </div>
     
     <div class="modal-footer">
       <button id="continueBtn" class="continue-btn">
         <i class="fas fa-arrow-right"></i>
-        <span>Continue to Listings</span>
-        <span class="timer" id="timer">5</span>
+        <span id="continueText">Continue</span>
+        <span class="timer" id="timer">3</span>
       </button>
-      <a href="#" id="skipAd" class="skip-ad">Skip Advertisement</a>
     </div>
   </div>
 </div>
@@ -515,103 +477,72 @@
   });
 </script>
 
-    <!-- Modal and Ad Logic - SHOW ON EVERY CLICK -->
+<!-- Modal and Ad Logic - EVERY CLICK -->
 <script>
   // DOM Elements
-  const browseListingsBtn = document.getElementById('browseListingsBtn');
   const adModal = document.getElementById('adModal');
   const continueBtn = document.getElementById('continueBtn');
-  const skipAd = document.getElementById('skipAd');
+  const continueText = document.getElementById('continueText');
   const closeModalBtn = document.querySelector('.close-modal');
   const timerElement = document.getElementById('timer');
   const modalAdContainer = document.getElementById('modal-ad');
   
   // Configuration
-  const SEARCH_PAGE = 'search.html';
-  const AD_TIMER_SECONDS = 3; // Shorter timer since showing every click
+  const AD_TIMER_SECONDS = 3; // 3-second timer
   
   // State
   let timerInterval;
   let timerSeconds = AD_TIMER_SECONDS;
   let isContinueEnabled = false;
+  let targetUrl = '';
   let adShownCount = 0;
-  const MAX_ADS_PER_MINUTE = 10; // Safety limit
   
-  // Track ads per minute to prevent abuse
-  let adsThisMinute = 0;
-  let minuteTimer;
+  // Track all clicks that should show ads
+  const clickableElements = [
+    '#browseListingsBtn',
+    '.nav-links a',
+    '.contact a'
+  ];
   
-  function resetMinuteCounter() {
-    adsThisMinute = 0;
-    minuteTimer = setTimeout(resetMinuteCounter, 60000);
+  // Initialize all click handlers
+  function initAdHandlers() {
+    // Browse Listings button
+    document.getElementById('browseListingsBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      showAdModal('search.html', 'Continue to Listings');
+    });
+    
+    // Navigation links (Home, Sign Up, Log In)
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const linkUrl = this.getAttribute('data-link') || 'index.html';
+        const pageName = this.textContent;
+        showAdModal(linkUrl, `Continue to ${pageName}`);
+      });
+    });
+    
+    // Register button in contact section
+    document.querySelector('.contact a').addEventListener('click', function(e) {
+      e.preventDefault();
+      showAdModal('register.html', 'Continue to Registration');
+    });
   }
   
-  // Start minute counter
-  resetMinuteCounter();
-  
-  // Show modal on EVERY click
-  browseListingsBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    // Safety check: Don't show more than 10 ads per minute
-    if (adsThisMinute >= MAX_ADS_PER_MINUTE) {
-      alert("Please wait a moment before continuing.");
-      return;
-    }
-    
-    adShownCount++;
-    adsThisMinute++;
-    console.log(`Ad shown #${adShownCount} (${adsThisMinute}/min)`);
-    
-    // Show ad modal
-    showAdModal();
-    
-    // Save to localStorage for tracking
-    localStorage.setItem('totalAdsShown', adShownCount);
-    localStorage.setItem('lastAdTime', Date.now().toString());
-  });
-  
-  // Also make ALL navigation links show ads
-  document.querySelectorAll('.nav-links a, .contact a').forEach(link => {
-    if (link.id !== 'browseListingsBtn') {
-      link.addEventListener('click', function(e) {
-        // Don't intercept if it's an external link or anchor
-        if (this.href.includes('#') || this.href.includes('http') && !this.href.includes(window.location.hostname)) {
-          return;
-        }
-        
-        e.preventDefault();
-        const targetUrl = this.href;
-        
-        // Safety check
-        if (adsThisMinute >= MAX_ADS_PER_MINUTE) {
-          window.location.href = targetUrl;
-          return;
-        }
-        
-        adShownCount++;
-        adsThisMinute++;
-        
-        // Show ad then redirect to clicked link
-        showAdModalForRedirect(targetUrl);
-      });
-    }
-  });
-  
-  // Show the ad modal
-  function showAdModal() {
+  // Show ad modal
+  function showAdModal(url, buttonText) {
     // Prevent body scroll
     document.body.classList.add('modal-open');
+    
+    // Set target URL and button text
+    targetUrl = url;
+    continueText.textContent = buttonText;
     
     // Reset timer
     timerSeconds = AD_TIMER_SECONDS;
     timerElement.textContent = timerSeconds;
     continueBtn.disabled = true;
     isContinueEnabled = false;
-    timerElement.style.display = 'inline';
-    
-    // Update continue button text
-    continueBtn.querySelector('span').textContent = 'Continue to Listings';
     
     // Show modal
     adModal.style.display = 'flex';
@@ -621,27 +552,18 @@
     
     // Start countdown timer
     startTimer();
-  }
-  
-  // Special modal for navigation links
-  let redirectUrl = '';
-  
-  function showAdModalForRedirect(url) {
-    redirectUrl = url;
     
-    // Update button text based on destination
-    const pageName = url.split('/').pop().replace('.html', '').replace('-', ' ');
-    continueBtn.querySelector('span').textContent = `Continue to ${pageName.charAt(0).toUpperCase() + pageName.slice(1)}`;
-    
-    showAdModal();
+    // Track ad shown
+    adShownCount++;
+    console.log(`Ad shown #${adShownCount} - Destination: ${url}`);
   }
   
   // Load Adsterra ad into modal
   function loadAdsterraAd() {
     // Clear previous content
-    modalAdContainer.innerHTML = '<div style="padding: 20px; color: #666; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading advertisement...</div>';
+    modalAdContainer.innerHTML = '<div style="padding: 20px; color: #666; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
     
-    // Create Adsterra configuration
+    // Create Adsterra configuration - FIXED DOMAIN NAME
     window.atOptions = window.atOptions || {};
     window.atOptions = {
       'key': 'df0d70dcaa4e68038a0495a38c48f599',
@@ -657,25 +579,24 @@
       existingScript.remove();
     }
     
-    // Create and append new script
+    // Create and append new script - FIXED DOMAIN
     const adScript = document.createElement('script');
     adScript.type = 'text/javascript';
     adScript.src = '//www.highperformancedformats.com/df0d70dcaa4e68038a0495a38c48f599/invoke.js';
-    adScript.onload = function() {
-      console.log('Adsterra ad loaded');
-    };
+    
+    // Fallback if ad fails to load
     adScript.onerror = function() {
-      // Fallback if ad fails to load
       modalAdContainer.innerHTML = `
         <div style="padding: 30px; text-align: center; color: #666;">
           <i class="fas fa-ad" style="font-size: 48px; margin-bottom: 15px; color: #ddd;"></i>
           <h4 style="margin-bottom: 10px; color: #333;">Advertisement</h4>
-          <p style="font-size: 14px; margin-bottom: 20px;">Thank you for supporting our service</p>
-          <div style="width: 160px; height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-            Ad Space
+          <div style="width: 160px; height: 300px; background: linear-gradient(135deg, #2980b9 0%, #2c3e50 100%); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            Kreek Home
           </div>
         </div>
       `;
+      // Auto-enable continue button if ad fails
+      setTimeout(() => enableContinueButton(), 1000);
     };
     
     modalAdContainer.appendChild(adScript);
@@ -703,54 +624,43 @@
     timerElement.style.display = 'none';
   }
   
-  // Close modal
-  function closeModal() {
+  // Close modal and navigate
+  function closeModalAndNavigate() {
+    // Close modal
     document.body.classList.remove('modal-open');
     adModal.style.display = 'none';
     clearInterval(timerInterval);
-    redirectUrl = ''; // Reset redirect URL
-  }
-  
-  // Navigate to appropriate page
-  function continueToPage() {
-    if (redirectUrl) {
-      window.location.href = redirectUrl;
-    } else {
-      window.location.href = SEARCH_PAGE;
+    
+    // Navigate to target URL
+    if (targetUrl) {
+      window.location.href = targetUrl;
     }
   }
   
   // Event listeners
   continueBtn.addEventListener('click', function() {
     if (isContinueEnabled) {
-      closeModal();
-      continueToPage();
+      closeModalAndNavigate();
     }
   });
   
-  skipAd.addEventListener('click', function(e) {
-    e.preventDefault();
-    closeModal();
-    continueToPage();
-  });
-  
   closeModalBtn.addEventListener('click', function() {
-    closeModal();
+    closeModalAndNavigate();
   });
   
   // Close modal when clicking outside
   adModal.addEventListener('click', function(e) {
     if (e.target === adModal) {
-      closeModal();
+      closeModalAndNavigate();
     }
   });
   
-  // Auto-enable continue button after 30 seconds max (safety)
+  // Auto-enable continue button after 10 seconds max (safety)
   setTimeout(() => {
     if (adModal.style.display === 'flex' && !isContinueEnabled) {
       enableContinueButton();
     }
-  }, 30000);
+  }, 10000);
   
   // Hamburger menu toggle
   const hamburger = document.querySelector(".hamburger");
@@ -760,19 +670,26 @@
     navLinks.classList.toggle("show");
   });
   
-  // Also close mobile menu when clicking a link
+  // Close mobile menu when clicking a link
   document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
       navLinks.classList.remove('show');
     });
   });
   
-  // Log ad stats on page load
-  window.addEventListener('load', function() {
-    const totalAds = parseInt(localStorage.getItem('totalAdsShown') || '0');
+  // Initialize ad handlers when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    initAdHandlers();
+    
+    // Log total ads shown
+    const totalAds = localStorage.getItem('totalAdsShown') || 0;
     console.log(`Total ads shown to user: ${totalAds}`);
   });
-</script>
   
+  // Save ad count to localStorage
+  window.addEventListener('beforeunload', function() {
+    localStorage.setItem('totalAdsShown', adShownCount);
+  });
+</script>
 </body>
 </html>
