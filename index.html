@@ -515,7 +515,7 @@
   });
 </script>
 
-<!-- Modal and Ad Logic -->
+    <!-- Modal and Ad Logic - SHOW ON EVERY CLICK -->
 <script>
   // DOM Elements
   const browseListingsBtn = document.getElementById('browseListingsBtn');
@@ -527,29 +527,74 @@
   const modalAdContainer = document.getElementById('modal-ad');
   
   // Configuration
-  const SEARCH_PAGE = 'search.html'; // Your search results page
-  const AD_TIMER_SECONDS = 5; // Countdown before enabling continue button
-  const AD_COOLDOWN_MINUTES = 30; // Time before showing ad again
+  const SEARCH_PAGE = 'search.html';
+  const AD_TIMER_SECONDS = 3; // Shorter timer since showing every click
   
   // State
   let timerInterval;
   let timerSeconds = AD_TIMER_SECONDS;
   let isContinueEnabled = false;
+  let adShownCount = 0;
+  const MAX_ADS_PER_MINUTE = 10; // Safety limit
   
-  // Show modal when Browse Listings is clicked
+  // Track ads per minute to prevent abuse
+  let adsThisMinute = 0;
+  let minuteTimer;
+  
+  function resetMinuteCounter() {
+    adsThisMinute = 0;
+    minuteTimer = setTimeout(resetMinuteCounter, 60000);
+  }
+  
+  // Start minute counter
+  resetMinuteCounter();
+  
+  // Show modal on EVERY click
   browseListingsBtn.addEventListener('click', function(e) {
     e.preventDefault();
     
-    // Check if ad was shown recently
-    const lastAdTime = localStorage.getItem('lastAdTime');
-    const cooldownMs = AD_COOLDOWN_MINUTES * 60 * 1000;
+    // Safety check: Don't show more than 10 ads per minute
+    if (adsThisMinute >= MAX_ADS_PER_MINUTE) {
+      alert("Please wait a moment before continuing.");
+      return;
+    }
     
-    if (lastAdTime && (Date.now() - parseInt(lastAdTime)) < cooldownMs) {
-      // Skip ad, go directly to search
-      goToSearch();
-    } else {
-      // Show ad modal
-      showAdModal();
+    adShownCount++;
+    adsThisMinute++;
+    console.log(`Ad shown #${adShownCount} (${adsThisMinute}/min)`);
+    
+    // Show ad modal
+    showAdModal();
+    
+    // Save to localStorage for tracking
+    localStorage.setItem('totalAdsShown', adShownCount);
+    localStorage.setItem('lastAdTime', Date.now().toString());
+  });
+  
+  // Also make ALL navigation links show ads
+  document.querySelectorAll('.nav-links a, .contact a').forEach(link => {
+    if (link.id !== 'browseListingsBtn') {
+      link.addEventListener('click', function(e) {
+        // Don't intercept if it's an external link or anchor
+        if (this.href.includes('#') || this.href.includes('http') && !this.href.includes(window.location.hostname)) {
+          return;
+        }
+        
+        e.preventDefault();
+        const targetUrl = this.href;
+        
+        // Safety check
+        if (adsThisMinute >= MAX_ADS_PER_MINUTE) {
+          window.location.href = targetUrl;
+          return;
+        }
+        
+        adShownCount++;
+        adsThisMinute++;
+        
+        // Show ad then redirect to clicked link
+        showAdModalForRedirect(targetUrl);
+      });
     }
   });
   
@@ -563,6 +608,10 @@
     timerElement.textContent = timerSeconds;
     continueBtn.disabled = true;
     isContinueEnabled = false;
+    timerElement.style.display = 'inline';
+    
+    // Update continue button text
+    continueBtn.querySelector('span').textContent = 'Continue to Listings';
     
     // Show modal
     adModal.style.display = 'flex';
@@ -572,9 +621,19 @@
     
     // Start countdown timer
     startTimer();
+  }
+  
+  // Special modal for navigation links
+  let redirectUrl = '';
+  
+  function showAdModalForRedirect(url) {
+    redirectUrl = url;
     
-    // Save timestamp
-    localStorage.setItem('lastAdTime', Date.now().toString());
+    // Update button text based on destination
+    const pageName = url.split('/').pop().replace('.html', '').replace('-', ' ');
+    continueBtn.querySelector('span').textContent = `Continue to ${pageName.charAt(0).toUpperCase() + pageName.slice(1)}`;
+    
+    showAdModal();
   }
   
   // Load Adsterra ad into modal
@@ -642,7 +701,6 @@
     continueBtn.disabled = false;
     isContinueEnabled = true;
     timerElement.style.display = 'none';
-    continueBtn.querySelector('span').textContent = 'Continue to Listings';
   }
   
   // Close modal
@@ -650,25 +708,30 @@
     document.body.classList.remove('modal-open');
     adModal.style.display = 'none';
     clearInterval(timerInterval);
+    redirectUrl = ''; // Reset redirect URL
   }
   
-  // Navigate to search page
-  function goToSearch() {
-    window.location.href = SEARCH_PAGE;
+  // Navigate to appropriate page
+  function continueToPage() {
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    } else {
+      window.location.href = SEARCH_PAGE;
+    }
   }
   
   // Event listeners
   continueBtn.addEventListener('click', function() {
     if (isContinueEnabled) {
       closeModal();
-      goToSearch();
+      continueToPage();
     }
   });
   
   skipAd.addEventListener('click', function(e) {
     e.preventDefault();
     closeModal();
-    goToSearch();
+    continueToPage();
   });
   
   closeModalBtn.addEventListener('click', function() {
@@ -682,11 +745,10 @@
     }
   });
   
-  // Auto-close and redirect after 30 seconds (safety)
+  // Auto-enable continue button after 30 seconds max (safety)
   setTimeout(() => {
-    if (adModal.style.display === 'flex') {
-      closeModal();
-      goToSearch();
+    if (adModal.style.display === 'flex' && !isContinueEnabled) {
+      enableContinueButton();
     }
   }, 30000);
   
@@ -704,6 +766,13 @@
       navLinks.classList.remove('show');
     });
   });
+  
+  // Log ad stats on page load
+  window.addEventListener('load', function() {
+    const totalAds = parseInt(localStorage.getItem('totalAdsShown') || '0');
+    console.log(`Total ads shown to user: ${totalAds}`);
+  });
 </script>
+  
 </body>
 </html>
