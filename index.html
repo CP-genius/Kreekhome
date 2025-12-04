@@ -1,20 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kreek Hone - Find Your Dream Home</title>
-<script src="https://quge5.com/88/tag.min.js" data-zone="190387" async data-cfasync="false"></script>
+  <title>Kreek Home - Find Your Dream Home</title>
   
+  <!-- Existing ad script -->
+  <script src="https://quge5.com/88/tag.min.js" data-zone="190387" async data-cfasync="false"></script>
   
-  <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
-
-  <!-- TEMP HIDE BODY UNTIL AUTH CHECK -->
+  <!-- Adsterra Modal Styles -->
   <style>
+    /* Ad Modal Styles - Add these to your existing styles */
+    .ad-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 420px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+      animation: modalSlideIn 0.4s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(-40px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #2980b9, #2c3e50);
+      color: white;
+      padding: 18px 25px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .close-modal {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .close-modal:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .ad-container {
+      padding: 25px;
+      text-align: center;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+    }
+
+    #modal-ad {
+      width: 160px;
+      height: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .ad-note {
+      margin-top: 15px;
+      color: #666;
+      font-size: 13px;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    .modal-footer {
+      padding: 20px 25px;
+      text-align: center;
+      border-top: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    .continue-btn {
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: white;
+      border: none;
+      padding: 14px 35px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .continue-btn:hover {
+      background: linear-gradient(135deg, #e67e22, #d35400);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(243, 156, 18, 0.4);
+    }
+
+    .continue-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .skip-ad {
+      display: block;
+      margin-top: 12px;
+      color: #7f8c8d;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .skip-ad:hover {
+      color: #2980b9;
+      text-decoration: underline;
+    }
+
+    /* Timer countdown */
+    .timer {
+      font-size: 0.85rem;
+      color: #e74c3c;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+
+    /* Prevent body scroll when modal is open */
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    /* Responsive modal */
+    @media (max-width: 600px) {
+      .modal-content {
+        width: 95%;
+        max-width: 380px;
+      }
+      
+      #modal-ad {
+        height: 500px;
+      }
+      
+      .ad-container {
+        min-height: 280px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      #modal-ad {
+        width: 140px;
+        height: 450px;
+      }
+    }
+  </style>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    /* Your existing styles below - KEEP THESE */
     :root {
       --primary: #2980b9;
       --accent: #f39c12;
@@ -27,11 +207,10 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      
     }
 
     body {
-      display: none; /* 👈 hide page initially */
+      display: none;
       background: var(--bg-light);
       color: var(--text-dark);
       line-height: 1.6;
@@ -45,19 +224,49 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      
     }
 
-    header h1 {
-      font-size: 2rem;
-      margin-right: 100px;
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
     }
 
-    nav a {
-      margin-left: 0rem;
-      color: var(--text-light);
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      gap: 0.5rem;
+    }
+
+    .logo i {
+      color: var(--accent);
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: white;
       text-decoration: none;
       font-weight: 600;
+    }
+
+    .hamburger {
+      display: none;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
     }
 
     .hero {
@@ -75,12 +284,14 @@
       font-size: 3rem;
       margin-bottom: 1rem;
       color: blue;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
 
     .hero p {
       font-size: 1.2rem;
       margin-bottom: 2rem;
       color: black;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
     }
 
     .hero a {
@@ -90,6 +301,13 @@
       text-decoration: none;
       font-weight: 600;
       border-radius: 0.5rem;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .hero a:hover {
+      background: #e67e22;
+      transform: translateY(-3px);
     }
 
     section {
@@ -115,34 +333,6 @@
     .features h3 {
       color: var(--primary);
       margin-bottom: 1rem;
-    }
-
-    .listings {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-
-    .listings .property {
-      background: #fff;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-
-    .listings .property img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .listings .property .info {
-      padding: 1rem;
-    }
-
-    .listings .property h4 {
-      margin-bottom: 0.5rem;
-      color: var(--primary);
     }
 
     .contact {
@@ -174,106 +364,45 @@
       color: #777;
     }
 
-    /* Base Styles */
-header {
-  background: var(--primary, #2980b9);
-  color: white;
-  padding: 1rem 2rem;
-}
+    @media (max-width: 768px) {
+      .hamburger {
+        display: block;
+      }
+      
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: var(--primary);
+        margin-top: 1rem;
+        padding: 1rem 0;
+      }
+      
+      .nav-links.show {
+        display: flex;
+      }
+      
+      .nav-links a {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .hero h2 {
+        font-size: 2.2rem;
+      }
+      
+      .hero p {
+        font-size: 1.1rem;
+      }
+    }
 
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0;
-  flex-wrap: wrap;
- 
-
-}
-
-display: flex;
-  align-items: center;
-  font-size: 1.8rem;
-  font-weight: bold;
-  gap: 0.5rem; /* spacing between icon and text */
-}
-
-.logo i {
-  color: var(--accent); /* Optional: use your accent color */
-  font-size: 1.5rem;
-}
-
-/* Optional: shrink logo font size slightly on small screens */
-@media (max-width: 600px) {
-  .logo {
-    font-size: 1.4rem;
-  }
-
-  .logo i {
-    font-size: 1.2rem;
-  }
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.rem;
-  margin-right: 0;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  margin: 10px;
-  
-}
-
-/* Hamburger button (hidden on desktop) */
-.hamburger {
-  display: none;
-  font-size: 2rem;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .hamburger {
-    display: block;
-  }
-  
-  .nav-links {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    background: var(--primary, #2980b9);
-    margin-top: 1rem;
-  }
-  
-  .nav-links.show {
-    display: flex;
-  }
-  
-  .nav-links a {
-    padding: 0.75rem 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  .logo {
-    flex: none;
-  }
-  
-  .header-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
     @media (max-width: 600px) {
       .hero h2 {
         font-size: 2rem;
+      }
+      
+      header {
+        padding: 1rem;
       }
     }
   </style>
@@ -283,9 +412,9 @@ display: flex;
 
 <header>
   <div class="header-container">
-   <h1 class="logo">
-  <i class="fas fa-home"></i> Kreek Home
-</h1>
+    <h1 class="logo">
+      <i class="fas fa-home"></i> Kreek Home
+    </h1>
     <button class="hamburger" aria-label="Toggle navigation">
       &#9776;
     </button>
@@ -293,80 +422,288 @@ display: flex;
       <a href="/index.html">Home</a>
       <a href="register.html">Sign Up</a>
       <a href="login.html">Log In</a>
-      
     </nav>
   </div>
 </header>
 
-  <section class="hero">
-    <div>
-      <h2>Find Your Dream Home</h2>
-      <p>Explore the best properties in your city at the best price</p>
-      <a href="search.html">Browse Listings</a>
+<section class="hero">
+  <div>
+    <h2>Find Your Dream Home</h2>
+    <p>Explore the best properties in your city at the best price</p>
+    <!-- Changed to button for modal trigger -->
+    <a href="#" id="browseListingsBtn" class="browse-btn">
+      <i class="fas fa-search"></i> Browse Listings
+    </a>
+  </div>
+</section>
+
+<section id="features" class="features">
+  <div>
+    <h3>Verified Properties</h3>
+    <p>We ensure all listings are genuine and up to date.</p>
+  </div>
+  <div>
+    <h3>Expert Agents</h3>
+    <p>Work with our experienced real estate professionals.</p>
+  </div>
+  <div>
+    <h3>Affordable Deals</h3>
+    <p>Best price guaranteed for every listing you choose.</p>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <h3>Looking to Rent or Sell?</h3>
+  <a href="/register.html">Register</a>
+</section>
+
+<footer>
+  © 2025 Kreek Home All rights reserved.
+</footer>
+
+<!-- Ad Modal -->
+<div id="adModal" class="ad-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Advertisement</h3>
+      <button class="close-modal">&times;</button>
     </div>
-  </section>
-
-  <section id="features" class="features">
-    <div>
-      <h3>Verified Properties</h3>
-      <p>We ensure all listings are genuine and up to date.</p>
+    
+    <div class="ad-container">
+      <div id="modal-ad">
+        <!-- Adsterra ad will load here -->
+      </div>
+      <p class="ad-note">
+        Viewing this brief advertisement helps us provide free real estate services
+      </p>
     </div>
-    <div>
-      <h3>Expert Agents</h3>
-      <p>Work with our experienced real estate professionals.</p>
+    
+    <div class="modal-footer">
+      <button id="continueBtn" class="continue-btn">
+        <i class="fas fa-arrow-right"></i>
+        <span>Continue to Listings</span>
+        <span class="timer" id="timer">5</span>
+      </button>
+      <a href="#" id="skipAd" class="skip-ad">Skip Advertisement</a>
     </div>
-    <div>
-      <h3>Affordable Deals</h3>
-      <p>Best price guaranteed for every listing you choose.</p>
-    </div>
-  </section>
+  </div>
+</div>
 
-  <section id="contact" class="contact">
-    <h3>Looking to Rent or Sell?</h3>
-    <a href="/register.html">Register</a>
-  </section>
+<!-- Firebase auth check -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-  <footer>
-    © 2025 Kreek Home All rights reserved.
-  </footer>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDI3NCZ-bF_9hEbXAjkIX_1tuIYyfM4QNg",
+    authDomain: "real-estate-b0c92.firebaseapp.com",
+    projectId: "real-estate-b0c92",
+    storageBucket: "real-estate-b0c92.firebasestorage.app",
+    messagingSenderId: "708869112975",
+    appId: "1:708869112975:web:f5ccfce02b74a23553dcfa",
+    measurementId: "G-CGCBKW9K24"
+  };
 
-  <!-- ✅ Firebase auth check -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDI3NCZ-bF_9hEbXAjkIX_1tuIYyfM4QNg",
-      authDomain: "real-estate-b0c92.firebaseapp.com",
-      projectId: "real-estate-b0c92",
-      storageBucket: "real-estate-b0c92.firebasestorage.app",
-      messagingSenderId: "708869112975",
-      appId: "1:708869112975:web:f5ccfce02b74a23553dcfa",
-      measurementId: "G-CGCBKW9K24"
-    };
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.location.href = "dashboard.html";
+    } else {
+      document.body.style.display = 'block';
+    }
+  });
+</script>
 
-    // Init Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // Auth check
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // ✅ Redirect logged-in user
-        window.location.href = "dashboard.html";
-      } else {
-        // ✅ Show page to guest
-        document.body.style.display = 'block';
-      }
-    });
-  </script>
+<!-- Modal and Ad Logic -->
 <script>
+  // DOM Elements
+  const browseListingsBtn = document.getElementById('browseListingsBtn');
+  const adModal = document.getElementById('adModal');
+  const continueBtn = document.getElementById('continueBtn');
+  const skipAd = document.getElementById('skipAd');
+  const closeModalBtn = document.querySelector('.close-modal');
+  const timerElement = document.getElementById('timer');
+  const modalAdContainer = document.getElementById('modal-ad');
+  
+  // Configuration
+  const SEARCH_PAGE = 'search.html'; // Your search results page
+  const AD_TIMER_SECONDS = 5; // Countdown before enabling continue button
+  const AD_COOLDOWN_MINUTES = 30; // Time before showing ad again
+  
+  // State
+  let timerInterval;
+  let timerSeconds = AD_TIMER_SECONDS;
+  let isContinueEnabled = false;
+  
+  // Show modal when Browse Listings is clicked
+  browseListingsBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Check if ad was shown recently
+    const lastAdTime = localStorage.getItem('lastAdTime');
+    const cooldownMs = AD_COOLDOWN_MINUTES * 60 * 1000;
+    
+    if (lastAdTime && (Date.now() - parseInt(lastAdTime)) < cooldownMs) {
+      // Skip ad, go directly to search
+      goToSearch();
+    } else {
+      // Show ad modal
+      showAdModal();
+    }
+  });
+  
+  // Show the ad modal
+  function showAdModal() {
+    // Prevent body scroll
+    document.body.classList.add('modal-open');
+    
+    // Reset timer
+    timerSeconds = AD_TIMER_SECONDS;
+    timerElement.textContent = timerSeconds;
+    continueBtn.disabled = true;
+    isContinueEnabled = false;
+    
+    // Show modal
+    adModal.style.display = 'flex';
+    
+    // Load Adsterra ad
+    loadAdsterraAd();
+    
+    // Start countdown timer
+    startTimer();
+    
+    // Save timestamp
+    localStorage.setItem('lastAdTime', Date.now().toString());
+  }
+  
+  // Load Adsterra ad into modal
+  function loadAdsterraAd() {
+    // Clear previous content
+    modalAdContainer.innerHTML = '<div style="padding: 20px; color: #666; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading advertisement...</div>';
+    
+    // Create Adsterra configuration
+    window.atOptions = window.atOptions || {};
+    window.atOptions = {
+      'key': 'df0d70dcaa4e68038a0495a38c48f599',
+      'format': 'iframe',
+      'height': 600,
+      'width': 160,
+      'params': {}
+    };
+    
+    // Remove existing Adsterra script if any
+    const existingScript = document.querySelector('script[src*="highperformancedformats.com"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Create and append new script
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.src = '//www.highperformancedformats.com/df0d70dcaa4e68038a0495a38c48f599/invoke.js';
+    adScript.onload = function() {
+      console.log('Adsterra ad loaded');
+    };
+    adScript.onerror = function() {
+      // Fallback if ad fails to load
+      modalAdContainer.innerHTML = `
+        <div style="padding: 30px; text-align: center; color: #666;">
+          <i class="fas fa-ad" style="font-size: 48px; margin-bottom: 15px; color: #ddd;"></i>
+          <h4 style="margin-bottom: 10px; color: #333;">Advertisement</h4>
+          <p style="font-size: 14px; margin-bottom: 20px;">Thank you for supporting our service</p>
+          <div style="width: 160px; height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            Ad Space
+          </div>
+        </div>
+      `;
+    };
+    
+    modalAdContainer.appendChild(adScript);
+  }
+  
+  // Start countdown timer
+  function startTimer() {
+    clearInterval(timerInterval);
+    
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      timerElement.textContent = timerSeconds;
+      
+      if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        enableContinueButton();
+      }
+    }, 1000);
+  }
+  
+  // Enable the continue button
+  function enableContinueButton() {
+    continueBtn.disabled = false;
+    isContinueEnabled = true;
+    timerElement.style.display = 'none';
+    continueBtn.querySelector('span').textContent = 'Continue to Listings';
+  }
+  
+  // Close modal
+  function closeModal() {
+    document.body.classList.remove('modal-open');
+    adModal.style.display = 'none';
+    clearInterval(timerInterval);
+  }
+  
+  // Navigate to search page
+  function goToSearch() {
+    window.location.href = SEARCH_PAGE;
+  }
+  
+  // Event listeners
+  continueBtn.addEventListener('click', function() {
+    if (isContinueEnabled) {
+      closeModal();
+      goToSearch();
+    }
+  });
+  
+  skipAd.addEventListener('click', function(e) {
+    e.preventDefault();
+    closeModal();
+    goToSearch();
+  });
+  
+  closeModalBtn.addEventListener('click', function() {
+    closeModal();
+  });
+  
+  // Close modal when clicking outside
+  adModal.addEventListener('click', function(e) {
+    if (e.target === adModal) {
+      closeModal();
+    }
+  });
+  
+  // Auto-close and redirect after 30 seconds (safety)
+  setTimeout(() => {
+    if (adModal.style.display === 'flex') {
+      closeModal();
+      goToSearch();
+    }
+  }, 30000);
+  
+  // Hamburger menu toggle
   const hamburger = document.querySelector(".hamburger");
   const navLinks = document.querySelector(".nav-links");
   
   hamburger.addEventListener("click", () => {
     navLinks.classList.toggle("show");
+  });
+  
+  // Also close mobile menu when clicking a link
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('show');
+    });
   });
 </script>
 </body>
