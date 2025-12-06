@@ -24,6 +24,38 @@
                 "answer": 0,
                 "explanation": "0.75 = 75/100 = 3/4"
             }
+        ],
+        "quiz3": [
+            {
+                "id": 1,
+                "text": "What is 25% of 80?",
+                "options": ["20", "25", "30", "35"],
+                "answer": 0,
+                "explanation": "25% of 80 = 0.25 × 80 = 20"
+            },
+            {
+                "id": 2,
+                "text": "Simplify: 3² + 4²",
+                "options": ["25", "7", "12", "5"],
+                "answer": 0,
+                "explanation": "3² = 9, 4² = 16. 9 + 16 = 25"
+            }
+        ],
+        "quiz4": [
+            {
+                "id": 1,
+                "text": "What is 25% of 80?",
+                "options": ["20", "25", "30", "35"],
+                "answer": 0,
+                "explanation": "25% of 80 = 0.25 × 80 = 20"
+            },
+            {
+                "id": 2,
+                "text": "Simplify: 3² + 4²",
+                "options": ["25", "7", "12", "5"],
+                "answer": 0,
+                "explanation": "3² = 9, 4² = 16. 9 + 16 = 25"
+            }
         ]
     },
     "English Language": {
