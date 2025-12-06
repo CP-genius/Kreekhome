@@ -73,6 +73,119 @@ function showAd() {
 }
 
 // =============================================
+// NATIVE AD MANAGEMENT
+// =============================================
+
+const NATIVE_AD_FREQUENCY = 3; // Show ad after every 3 quiz cards
+let nativeAdIndex = 0;
+let nativeAdScriptLoaded = false;
+
+function loadNativeAdScript() {
+    if (nativeAdScriptLoaded) return;
+    
+    console.log("📢 Loading native ad script...");
+    
+    // Create and load the native ad script
+    const script = document.createElement('script');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
+    script.src = '//pl28201116.effectivegatecpm.com/46074e7115c278e921d40938f6b8717b/invoke.js';
+    
+    script.onload = function() {
+        console.log("✅ Native ad script loaded successfully");
+        nativeAdScriptLoaded = true;
+        // Initialize all existing ad containers
+        initializeNativeAdContainers();
+    };
+    
+    script.onerror = function() {
+        console.error("❌ Failed to load native ad script");
+        // Show fallback content
+        document.querySelectorAll('.native-ad-container').forEach(container => {
+            if (container.innerHTML.trim() === '') {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-ad" style="font-size: 2rem; color: #666; margin-bottom: 10px;"></i>
+                        <p style="color: #666; font-size: 0.9rem;">Advertisement could not be loaded</p>
+                    </div>
+                `;
+            }
+        });
+    };
+    
+    document.body.appendChild(script);
+    nativeAdScriptLoaded = true;
+}
+
+function initializeNativeAdContainers() {
+    // Wait a moment for the script to initialize
+    setTimeout(() => {
+        // The ad script should auto-populate containers with ID: container-46074e7115c278e921d40938f6b8717b
+        console.log("🔄 Initializing native ad containers");
+        
+        // Force refresh if needed
+        if (typeof window.adsbygoogle !== 'undefined') {
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.log("Ad push error:", e);
+            }
+        }
+    }, 1000);
+}
+
+function insertNativeAd(container, index, totalItems) {
+    // Only insert ads after certain intervals and not at the end
+    if (index > 0 && index % NATIVE_AD_FREQUENCY === 0 && index < totalItems - 2) {
+        // Create unique container ID
+        const containerId = `container-46074e7115c278e921d40938f6b8717b-${nativeAdIndex}`;
+        nativeAdIndex++;
+        
+        // Create ad card
+        const adCard = document.createElement('div');
+        adCard.className = 'native-ad-card';
+        
+        // IMPORTANT: The ad script looks for EXACT ID: container-46074e7115c278e921d40938f6b8717b
+        // So we need to use that exact ID, but we can only have one per page
+        // Let's use a different approach - create the exact ID container inside our card
+        
+        adCard.innerHTML = `
+            <div class="native-ad-label">Advertisement</div>
+            <div class="native-ad-placeholder">
+                <i class="fas fa-ad"></i>
+                <p>Loading advertisement...</p>
+                <small>Please wait</small>
+            </div>
+            <div class="native-ad-content">
+                <!-- The ad script will populate this -->
+                <div id="container-46074e7115c278e921d40938f6b8717b"></div>
+            </div>
+        `;
+        
+        container.appendChild(adCard);
+        
+        // Load the ad script if not already loaded
+        if (!nativeAdScriptLoaded) {
+            loadNativeAdScript();
+        } else {
+            // If script already loaded, initialize this container
+            setTimeout(() => {
+                if (typeof window.adsbygoogle !== 'undefined') {
+                    try {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    } catch (e) {
+                        console.log("Ad push error:", e);
+                    }
+                }
+            }, 500);
+        }
+        
+        return true;
+    }
+    return false;
+}
+
+// =============================================
 // APP STATE AND CONFIGURATION
 // =============================================
 
@@ -571,6 +684,7 @@ function handleQuizTypeChange() {
 
 function loadRandomQuizzes() {
     randomQuizGrid.innerHTML = '';
+    nativeAdIndex = 0;
     
     if (!state.randomQuizData || !state.randomQuizData[state.selectedSubject]) {
         // No random quizzes for this subject
@@ -588,8 +702,9 @@ function loadRandomQuizzes() {
     
     // Get quizzes for this subject from random.json
     const subjectQuizzes = state.randomQuizData[state.selectedSubject];
+    const quizKeys = Object.keys(subjectQuizzes);
     
-    Object.keys(subjectQuizzes).forEach((quizKey, index) => {
+    quizKeys.forEach((quizKey, index) => {
         const quizData = subjectQuizzes[quizKey];
         const questionCount = quizData.length;
         
@@ -611,6 +726,9 @@ function loadRandomQuizzes() {
         
         randomQuizGrid.appendChild(quizCard);
         
+        // Insert native ad after every NATIVE_AD_FREQUENCY cards
+        insertNativeAd(randomQuizGrid, index, quizKeys.length);
+        
         const quizActionBtn = quizCard.querySelector('.quiz-action');
         quizActionBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -621,14 +739,16 @@ function loadRandomQuizzes() {
 
 function loadTopics() {
     topicGrid.innerHTML = '';
+    nativeAdIndex = 0;
     
     if (!state.topicQuizData || !state.topicQuizData[state.selectedSubject]) {
         return;
     }
     
     const topics = state.topicQuizData[state.selectedSubject];
+    const topicNames = Object.keys(topics);
     
-    Object.keys(topics).forEach(topicName => {
+    topicNames.forEach((topicName, index) => {
         const topicQuizzes = topics[topicName];
         let totalQuestions = 0;
         
@@ -647,6 +767,9 @@ function loadTopics() {
         topicCard.addEventListener('click', () => selectTopic(topicName));
         
         topicGrid.appendChild(topicCard);
+        
+        // Insert native ad after every NATIVE_AD_FREQUENCY topic cards
+        insertNativeAd(topicGrid, index, topicNames.length);
     });
 }
 
@@ -658,6 +781,7 @@ function selectTopic(topic) {
 
 function loadTopicQuizzes() {
     topicQuizGrid.innerHTML = '';
+    nativeAdIndex = 0;
     
     if (!state.topicQuizData || 
         !state.topicQuizData[state.selectedSubject] || 
@@ -676,8 +800,9 @@ function loadTopicQuizzes() {
     }
     
     const topicQuizzes = state.topicQuizData[state.selectedSubject][state.selectedTopic];
+    const quizKeys = Object.keys(topicQuizzes);
     
-    Object.keys(topicQuizzes).forEach((quizKey, index) => {
+    quizKeys.forEach((quizKey, index) => {
         const quizData = topicQuizzes[quizKey];
         const questionCount = quizData.length;
         
@@ -698,6 +823,9 @@ function loadTopicQuizzes() {
         `;
         
         topicQuizGrid.appendChild(quizCard);
+        
+        // Insert native ad after every NATIVE_AD_FREQUENCY cards
+        insertNativeAd(topicQuizGrid, index, quizKeys.length);
         
         const quizActionBtn = quizCard.querySelector('.quiz-action');
         quizActionBtn.addEventListener('click', (e) => {
