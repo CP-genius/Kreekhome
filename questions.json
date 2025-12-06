@@ -1,0 +1,62 @@
+{
+    "Mathematics": {
+        "Algebra": {
+            "quiz1": [
+                {
+                    "id": 1,
+                    "text": "Simplify: (x + 3)(x - 2)",
+                    "options": ["x² + x - 6", "x² + 5x + 6", "x² - x - 6", "x² + x + 6"],
+                    "answer": 0,
+                    "explanation": "Use FOIL method: (x)(x) + (x)(-2) + (3)(x) + (3)(-2) = x² - 2x + 3x - 6 = x² + x - 6"
+                },
+                {
+                    "id": 2,
+                    "text": "Solve for x: 3x + 7 = 22",
+                    "options": ["x = 5", "x = 6", "x = 7", "x = 8"],
+                    "answer": 0,
+                    "explanation": "Subtract 7 from both sides: 3x = 15. Divide by 3: x = 5"
+                }
+            ],
+            "quiz2": [
+                {
+                    "id": 1,
+                    "text": "Factor: x² - 9",
+                    "options": ["(x - 3)(x + 3)", "(x - 3)²", "(x + 3)²", "x(x - 9)"],
+                    "answer": 0,
+                    "explanation": "Difference of squares: x² - 9 = (x - 3)(x + 3)"
+                },
+                {
+                    "id": 2,
+                    "text": "Solve the quadratic: x² - 5x + 6 = 0",
+                    "options": ["x = 2, 3", "x = -2, -3", "x = 1, 6", "x = -1, -6"],
+                    "answer": 0,
+                    "explanation": "Factor: (x - 2)(x - 3) = 0, so x = 2 or x = 3"
+                }
+            ]
+        },
+        "Geometry": {
+            "quiz1": [
+                {
+                    "id": 1,
+                    "text": "What is the area of a circle with radius 7cm?",
+                    "options": ["49π cm²", "14π cm²", "28π cm²", "7π cm²"],
+                    "answer": 0,
+                    "explanation": "Area = πr² = π(7)² = 49π cm²"
+                }
+            ]
+        }
+    },
+    "Physics": {
+        "Mechanics": {
+            "quiz1": [
+                {
+                    "id": 1,
+                    "text": "What is the formula for force?",
+                    "options": ["F = ma", "F = mv", "F = mgh", "F = p/t"],
+                    "answer": 0,
+                    "explanation": "Newton's second law: Force = mass × acceleration"
+                }
+            ]
+        }
+    }
+}

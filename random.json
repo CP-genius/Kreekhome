@@ -1,0 +1,62 @@
+{
+    "Mathematics": {
+        "quiz1": [
+            {
+                "id": 1,
+                "text": "What is 25% of 80?",
+                "options": ["20", "25", "30", "35"],
+                "answer": 0,
+                "explanation": "25% of 80 = 0.25 × 80 = 20"
+            },
+            {
+                "id": 2,
+                "text": "Simplify: 3² + 4²",
+                "options": ["25", "7", "12", "5"],
+                "answer": 0,
+                "explanation": "3² = 9, 4² = 16. 9 + 16 = 25"
+            }
+        ],
+        "quiz2": [
+            {
+                "id": 1,
+                "text": "Convert 0.75 to fraction",
+                "options": ["3/4", "1/4", "2/3", "4/5"],
+                "answer": 0,
+                "explanation": "0.75 = 75/100 = 3/4"
+            }
+        ]
+    },
+    "English Language": {
+        "quiz1": [
+            {
+                "id": 1,
+                "text": "Which word is a noun?",
+                "options": ["Beautiful", "Happiness", "Quickly", "Running"],
+                "answer": 1,
+                "explanation": "Happiness is a noun (a thing, idea, or quality)"
+            }
+        ]
+    },
+    "Physics": {
+        "quiz1": [
+            {
+                "id": 1,
+                "text": "What unit measures force?",
+                "options": ["Newton", "Joule", "Watt", "Pascal"],
+                "answer": 0,
+                "explanation": "Force is measured in Newtons (N)"
+            }
+        ]
+    },
+    "Chemistry": {
+        "quiz1": [
+            {
+                "id": 1,
+                "text": "What is the atomic number of carbon?",
+                "options": ["6", "12", "14", "16"],
+                "answer": 0,
+                "explanation": "Carbon has 6 protons, so atomic number is 6"
+            }
+        ]
+    }
+}
