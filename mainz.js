@@ -81,6 +81,8 @@ const state = {
     hasFullAccess: true, // All quizzes unlocked
     currentPage: 'loading',
     selectedSubject: null,
+    selectedQuizType: 'random',
+    selectedTopic: null,
     quizSetup: null,
     currentQuiz: null,
     currentQuestionIndex: 0,
@@ -89,16 +91,33 @@ const state = {
     timeRemaining: 0,
     timerInterval: null,
     questions: [], // Will hold questions from JSON
-    allQuizzes: [] // Will hold quiz data
+    randomQuizData: null, // Will hold random.json data
+    topicQuizData: null // Will hold questions.json data
 };
 
-// Sample Subjects
+// Subjects with icons
 const subjects = [
-    "Mathematics", "English Language", "Physics", "Chemistry", "Biology",
-    "Economics", "Geography", "History", "Government", "Commerce",
-    "Accounting", "Literature in English", "Christian Religious Studies",
-    "Islamic Religious Studies", "Further Mathematics", "French", "Agricultural Science"
+    { name: "Mathematics", icon: "fas fa-calculator" },
+    { name: "English Language", icon: "fas fa-book" },
+    { name: "Physics", icon: "fas fa-atom" },
+    { name: "Chemistry", icon: "fas fa-flask" },
+    { name: "Biology", icon: "fas fa-dna" },
+    { name: "Economics", icon: "fas fa-chart-line" },
+    { name: "Geography", icon: "fas fa-globe-americas" },
+    { name: "History", icon: "fas fa-landmark" },
+    { name: "Government", icon: "fas fa-balance-scale" },
+    { name: "Commerce", icon: "fas fa-shopping-cart" },
+    { name: "Accounting", icon: "fas fa-calculator" },
+    { name: "Literature in English", icon: "fas fa-pen-fancy" },
+    { name: "Christian Religious Studies", icon: "fas fa-cross" },
+    { name: "Islamic Religious Studies", icon: "fas fa-star-and-crescent" },
+    { name: "Further Mathematics", icon: "fas fa-square-root-alt" },
+    { name: "French", icon: "fas fa-language" },
+    { name: "Agricultural Science", icon: "fas fa-tractor" }
 ];
+
+// Topic-based subjects (from questions.json structure)
+const topicBasedSubjects = ["Mathematics", "Physics"];
 
 // Default sample questions (fallback if JSON fails)
 const defaultQuestions = [
@@ -129,16 +148,43 @@ const defaultQuestions = [
 // DOM ELEMENTS
 // =============================================
 
+// Loading Screen
 const loadingScreen = document.getElementById('loadingScreen');
 const waveProgress = document.getElementById('waveProgress');
 const continueBtn = document.getElementById('continueBtn');
+
+// Header
 const mainHeader = document.getElementById('mainHeader');
+const homeNavBtn = document.getElementById('homeNavBtn');
+
+// Pages
 const homePage = document.getElementById('homePage');
-const takeQuizBtn = document.getElementById('takeQuizBtn');
-const quizSelectionPage = document.getElementById('quizSelectionPage');
-const pageTitle = document.getElementById('pageTitle');
-const quizGrid = document.getElementById('quizGrid');
+const subjectSelectionPage = document.getElementById('subjectSelectionPage');
+const quizTypePage = document.getElementById('quizTypePage');
+const topicQuizPage = document.getElementById('topicQuizPage');
 const quizScreen = document.getElementById('quizScreen');
+
+// Home Page
+const takeQuizBtn = document.getElementById('takeQuizBtn');
+
+// Subject Selection Page
+const subjectSearchInput = document.getElementById('subjectSearchInput');
+const subjectList = document.getElementById('subjectList');
+
+// Quiz Type Page
+const backToSubjectBtn = document.getElementById('backToSubjectBtn');
+const quizTypeSubject = document.getElementById('quizTypeSubject');
+const quizTypeSelect = document.getElementById('quizTypeSelect');
+const randomQuizGrid = document.getElementById('randomQuizGrid');
+const topicGrid = document.getElementById('topicGrid');
+const noTopicsMessage = document.getElementById('noTopicsMessage');
+
+// Topic Quiz Page
+const backToTopicsBtn = document.getElementById('backToTopicsBtn');
+const topicTitle = document.getElementById('topicTitle');
+const topicQuizGrid = document.getElementById('topicQuizGrid');
+
+// Quiz Screen
 const quizSubjectTitle = document.getElementById('quizSubjectTitle');
 const quizTimer = document.getElementById('quizTimer');
 const questionGrid = document.getElementById('questionGrid');
@@ -147,22 +193,14 @@ const questionText = document.getElementById('questionText');
 const optionsContainer = document.getElementById('optionsContainer');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
-const homeNavBtn = document.getElementById('homeNavBtn');
 
-// Modal Elements
-const subjectModal = document.getElementById('subjectModal');
-const subjectSearch = document.getElementById('subjectSearch');
-const subjectList = document.getElementById('subjectList');
-const closeSubjectModal = document.getElementById('closeSubjectModal');
+// Modals
 const setupModal = document.getElementById('setupModal');
-const selectedSubjectLabel = document.getElementById('selectedSubjectLabel');
-const topicSelect = document.getElementById('topicSelect');
-const quizNumberSelect = document.getElementById('quizNumberSelect');
+const selectedQuizLabel = document.getElementById('selectedQuizLabel');
 const durationSelect = document.getElementById('durationSelect');
 const quizSetupForm = document.getElementById('quizSetupForm');
 const closeSetupModal = document.getElementById('closeSetupModal');
 
-// Explanation Modal Elements
 const explanationModal = document.getElementById('explanationModal');
 const closeExplanationModal = document.getElementById('closeExplanationModal');
 const explanationTitle = document.getElementById('explanationTitle');
@@ -171,7 +209,6 @@ const resultText = document.getElementById('resultText');
 const explanationText = document.getElementById('explanationText');
 const continueQuizBtn = document.getElementById('continueQuizBtn');
 
-// Results Modal Elements
 const resultsModal = document.getElementById('resultsModal');
 const scorePercentage = document.getElementById('scorePercentage');
 const correctCount = document.getElementById('correctCount');
@@ -226,11 +263,17 @@ function setupEventListeners() {
     homeNavBtn.addEventListener('click', goToHomePage);
     
     // Home page
-    takeQuizBtn.addEventListener('click', showSubjectModal);
+    takeQuizBtn.addEventListener('click', showSubjectSelectionPage);
     
-    // Subject Modal
-    closeSubjectModal.addEventListener('click', () => closeModal(subjectModal));
-    subjectSearch.addEventListener('input', filterSubjects);
+    // Subject Selection Page
+    subjectSearchInput.addEventListener('input', filterSubjects);
+    
+    // Quiz Type Page
+    backToSubjectBtn.addEventListener('click', goToSubjectSelectionPage);
+    quizTypeSelect.addEventListener('change', handleQuizTypeChange);
+    
+    // Topic Quiz Page
+    backToTopicsBtn.addEventListener('click', goToQuizTypePage);
     
     // Setup Modal
     closeSetupModal.addEventListener('click', () => closeModal(setupModal));
@@ -244,7 +287,12 @@ function setupEventListeners() {
     closeResultsModal.addEventListener('click', () => closeModal(resultsModal));
     backToQuizzesBtn.addEventListener('click', () => {
         closeModal(resultsModal);
-        showQuizSelectionPage();
+        // Go back to appropriate page based on quiz type
+        if (state.selectedTopic) {
+            goToTopicQuizPage();
+        } else {
+            goToQuizTypePage();
+        }
     });
     goHomeBtn.addEventListener('click', () => {
         closeModal(resultsModal);
@@ -296,78 +344,31 @@ async function loadQuizData() {
     try {
         console.log("📥 Loading quiz data...");
         
-        // Try to load from questions.json
-        const response = await fetch('questions.json');
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log("✓ Loaded questions.json", Object.keys(data));
-            
-            // Process the data to create quiz list
-            state.allQuizzes = processQuizData(data);
-            console.log("✓ Processed quizzes:", state.allQuizzes.length);
+        // Load random quiz data
+        const randomResponse = await fetch('random.json');
+        if (randomResponse.ok) {
+            state.randomQuizData = await randomResponse.json();
+            console.log("✓ Loaded random.json", Object.keys(state.randomQuizData));
         } else {
-            console.log("questions.json not found, using default data");
-            state.allQuizzes = createDefaultQuizzes();
+            console.log("random.json not found");
+            state.randomQuizData = null;
+        }
+        
+        // Load topic-based quiz data
+        const topicResponse = await fetch('questions.json');
+        if (topicResponse.ok) {
+            state.topicQuizData = await topicResponse.json();
+            console.log("✓ Loaded questions.json", Object.keys(state.topicQuizData));
+        } else {
+            console.log("questions.json not found");
+            state.topicQuizData = null;
         }
         
     } catch (error) {
         console.error("Error loading quiz data:", error);
-        state.allQuizzes = createDefaultQuizzes();
+        state.randomQuizData = null;
+        state.topicQuizData = null;
     }
-}
-
-function processQuizData(data) {
-    const quizzes = [];
-    let quizId = 1;
-    
-    // Process each subject in the JSON
-    for (const [subject, topics] of Object.entries(data)) {
-        const isTopicBased = ["Mathematics", "Physics", "Chemistry", "Biology"].includes(subject);
-        
-        if (isTopicBased) {
-            // Topic-based subjects: Show each topic separately
-            for (const [topic, quizGroups] of Object.entries(topics)) {
-                for (const [quizNumber, questions] of Object.entries(quizGroups)) {
-                    quizzes.push({
-                        id: quizId++,
-                        subject: subject,
-                        topic: topic,
-                        quizNumber: quizNumber,
-                        questions: questions.length,
-                        isUnlocked: true
-                    });
-                }
-            }
-        } else {
-            // Non-topic subjects: Show as "All Topics"
-            if (topics["Default"]) {
-                for (const [quizNumber, questions] of Object.entries(topics["Default"])) {
-                    quizzes.push({
-                        id: quizId++,
-                        subject: subject,
-                        topic: "All Topics",
-                        quizNumber: quizNumber,
-                        questions: questions.length,
-                        isUnlocked: true
-                    });
-                }
-            }
-        }
-    }
-    
-    return quizzes;
-}
-
-function createDefaultQuizzes() {
-    return subjects.map((subject, index) => ({
-        id: index + 1,
-        subject: subject,
-        topic: "All Topics",
-        quizNumber: "quiz1",
-        questions: 50,
-        isUnlocked: true
-    }));
 }
 
 function hideLoadingScreen() {
@@ -382,6 +383,18 @@ function hideLoadingScreen() {
     }, 500);
 }
 
+// =============================================
+// PAGE NAVIGATION FUNCTIONS
+// =============================================
+
+function hideAllPages() {
+    homePage.classList.add('hidden');
+    subjectSelectionPage.classList.add('hidden');
+    quizTypePage.classList.add('hidden');
+    topicQuizPage.classList.add('hidden');
+    quizScreen.classList.add('hidden');
+}
+
 function showHomePage() {
     hideAllPages();
     homePage.classList.remove('hidden');
@@ -390,126 +403,399 @@ function showHomePage() {
 }
 
 function goToHomePage() {
+    // Reset state
+    state.selectedSubject = null;
+    state.selectedTopic = null;
+    state.selectedQuizType = 'random';
+    
     hideAllPages();
     homePage.classList.remove('hidden');
     state.currentPage = 'home';
     console.log("🏠 Navigated to homepage");
 }
 
-function showQuizSelectionPage() {
+function showSubjectSelectionPage() {
     hideAllPages();
-    quizSelectionPage.classList.remove('hidden');
-    state.currentPage = 'quizSelection';
-    
-    // Load and display quizzes
-    loadAndDisplayQuizzes();
-    console.log("📚 Showing quiz selection page");
+    subjectSelectionPage.classList.remove('hidden');
+    state.currentPage = 'subjectSelection';
+    populateSubjectList();
+    console.log("📚 Showing subject selection page");
 }
 
-function loadAndDisplayQuizzes() {
-    quizGrid.innerHTML = '';
+function goToSubjectSelectionPage() {
+    hideAllPages();
+    subjectSelectionPage.classList.remove('hidden');
+    state.currentPage = 'subjectSelection';
+    console.log("← Back to subject selection");
+}
+
+function showQuizTypePage() {
+    hideAllPages();
+    quizTypePage.classList.remove('hidden');
+    state.currentPage = 'quizType';
     
-    if (state.allQuizzes.length === 0) {
-        state.allQuizzes = createDefaultQuizzes();
+    // Set the subject name
+    quizTypeSubject.textContent = state.selectedSubject;
+    
+    // Reset selected topic
+    state.selectedTopic = null;
+    
+    // Load quizzes based on current type
+    handleQuizTypeChange();
+    
+    console.log("🎲 Showing quiz type selection page");
+}
+
+function goToQuizTypePage() {
+    hideAllPages();
+    quizTypePage.classList.remove('hidden');
+    state.currentPage = 'quizType';
+    state.selectedTopic = null;
+    console.log("← Back to quiz type selection");
+}
+
+function showTopicQuizPage() {
+    hideAllPages();
+    topicQuizPage.classList.remove('hidden');
+    state.currentPage = 'topicQuiz';
+    
+    // Set the title
+    topicTitle.textContent = `${state.selectedSubject}: ${state.selectedTopic}`;
+    
+    // Load quizzes for this topic
+    loadTopicQuizzes();
+    
+    console.log("📖 Showing topic quiz page");
+}
+
+function goToTopicQuizPage() {
+    hideAllPages();
+    topicQuizPage.classList.remove('hidden');
+    state.currentPage = 'topicQuiz';
+    console.log("↻ Returned to topic quiz page");
+}
+
+// =============================================
+// SUBJECT MANAGEMENT
+// =============================================
+
+function populateSubjectList(filter = '') {
+    subjectList.innerHTML = '';
+    
+    const filteredSubjects = subjects.filter(subject => 
+        subject.name.toLowerCase().includes(filter.toLowerCase())
+    );
+    
+    filteredSubjects.forEach(subject => {
+        const item = document.createElement('div');
+        item.className = 'subject-item';
+        item.innerHTML = `
+            <i class="${subject.icon}"></i>
+            <div class="subject-name">${subject.name}</div>
+        `;
+        item.addEventListener('click', () => selectSubject(subject.name));
+        subjectList.appendChild(item);
+    });
+    
+    if (filteredSubjects.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'subject-item';
+        noResults.innerHTML = '<div class="subject-name">No subjects found</div>';
+        noResults.style.textAlign = 'center';
+        noResults.style.color = 'var(--gray)';
+        subjectList.appendChild(noResults);
     }
+}
+
+function filterSubjects() {
+    populateSubjectList(subjectSearchInput.value);
+}
+
+async function selectSubject(subject) {
+    console.log(`🎯 Selected subject: ${subject}`);
     
-    let quizzesToShow = state.allQuizzes;
-    if (state.selectedSubject) {
-        quizzesToShow = state.allQuizzes.filter(quiz => 
-            quiz.subject === state.selectedSubject
-        );
-        pageTitle.textContent = `${state.selectedSubject} Quizzes`;
+    state.selectedSubject = subject;
+    
+    // Check if subject has topic-based quizzes
+    const hasTopicQuizzes = state.topicQuizData && state.topicQuizData[subject];
+    
+    // If no topic-based quizzes, disable topic option
+    if (!hasTopicQuizzes) {
+        quizTypeSelect.innerHTML = `
+            <option value="random">Random Quiz</option>
+            <option value="topic" disabled>Topic-Based Quiz (Not Available)</option>
+        `;
+        state.selectedQuizType = 'random';
     } else {
-        pageTitle.textContent = 'All Quizzes';
+        quizTypeSelect.innerHTML = `
+            <option value="random">Random Quiz</option>
+            <option value="topic">Topic-Based Quiz</option>
+        `;
     }
     
-    // Display quizzes
-    quizzesToShow.forEach(quiz => {
-        const quizCard = document.createElement('div');
-        quizCard.className = 'quiz-card active';
-        quizCard.dataset.quizId = quiz.id;
+    // Go to quiz type selection page
+    showQuizTypePage();
+}
+
+// =============================================
+// QUIZ TYPE MANAGEMENT
+// =============================================
+
+function handleQuizTypeChange() {
+    const quizType = quizTypeSelect.value;
+    state.selectedQuizType = quizType;
+    
+    console.log(`🔄 Quiz type changed to: ${quizType}`);
+    
+    if (quizType === 'random') {
+        // Show random quizzes
+        topicGrid.classList.add('hidden');
+        noTopicsMessage.classList.add('hidden');
+        randomQuizGrid.classList.remove('hidden');
+        loadRandomQuizzes();
+    } else {
+        // Show topic-based quizzes
+        randomQuizGrid.classList.add('hidden');
         
-        // Show quiz number and topic
-        const displayName = quiz.topic === "All Topics" 
-            ? `${quiz.subject} - ${quiz.quizNumber}` 
-            : `${quiz.subject}: ${quiz.topic} - ${quiz.quizNumber}`;
-            
+        // Check if subject has topics
+        if (state.topicQuizData && state.topicQuizData[state.selectedSubject]) {
+            topicGrid.classList.remove('hidden');
+            noTopicsMessage.classList.add('hidden');
+            loadTopics();
+        } else {
+            topicGrid.classList.add('hidden');
+            noTopicsMessage.classList.remove('hidden');
+        }
+    }
+}
+
+function loadRandomQuizzes() {
+    randomQuizGrid.innerHTML = '';
+    
+    if (!state.randomQuizData || !state.randomQuizData[state.selectedSubject]) {
+        // No random quizzes for this subject
+        const noQuizzes = document.createElement('div');
+        noQuizzes.className = 'quiz-card';
+        noQuizzes.innerHTML = `
+            <div class="quiz-card-header">
+                <div class="quiz-subject">No Random Quizzes</div>
+            </div>
+            <div class="quiz-details">No random quizzes available for this subject.</div>
+        `;
+        randomQuizGrid.appendChild(noQuizzes);
+        return;
+    }
+    
+    // Get quizzes for this subject from random.json
+    const subjectQuizzes = state.randomQuizData[state.selectedSubject];
+    
+    Object.keys(subjectQuizzes).forEach((quizKey, index) => {
+        const quizData = subjectQuizzes[quizKey];
+        const questionCount = quizData.length;
+        
+        const quizCard = document.createElement('div');
+        quizCard.className = 'quiz-card';
         quizCard.innerHTML = `
             <div class="quiz-card-header">
-                <div class="quiz-subject">${displayName}</div>
-                <div class="quiz-status status-available">
-                    Available
-                </div>
+                <div class="quiz-subject">${state.selectedSubject} - Random Quiz ${index + 1}</div>
+                <div class="quiz-status status-available">Available</div>
             </div>
-            <div class="quiz-details">${quiz.questions} questions</div>
+            <div class="quiz-details">${questionCount} questions</div>
             <div class="quiz-card-footer">
-                <div class="quiz-questions">${quiz.questions} questions</div>
-                <button class="quiz-action" data-quiz-id="${quiz.id}">
+                <div class="quiz-questions">${questionCount} questions</div>
+                <button class="quiz-action" data-quiz-key="${quizKey}">
                     Start Quiz
                 </button>
             </div>
         `;
         
-        quizGrid.appendChild(quizCard);
+        randomQuizGrid.appendChild(quizCard);
         
         const quizActionBtn = quizCard.querySelector('.quiz-action');
         quizActionBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            handleQuizSelection(quiz);
-        });
-        
-        quizCard.addEventListener('click', () => {
-            handleQuizSelection(quiz);
+            handleRandomQuizSelection(quizKey, quizData);
         });
     });
 }
 
-async function handleQuizSelection(quiz) {
-    console.log(`🎯 Selected quiz: ${quiz.subject} - ${quiz.quizNumber}`);
+function loadTopics() {
+    topicGrid.innerHTML = '';
     
-    // Save selected quiz
-    state.currentQuiz = quiz;
+    if (!state.topicQuizData || !state.topicQuizData[state.selectedSubject]) {
+        return;
+    }
     
-    // Load questions for this quiz
-    await loadQuestionsForQuiz(quiz);
+    const topics = state.topicQuizData[state.selectedSubject];
+    
+    Object.keys(topics).forEach(topicName => {
+        const topicQuizzes = topics[topicName];
+        let totalQuestions = 0;
+        
+        // Calculate total questions across all quizzes for this topic
+        Object.values(topicQuizzes).forEach(quiz => {
+            totalQuestions += quiz.length;
+        });
+        
+        const topicCard = document.createElement('div');
+        topicCard.className = 'topic-card';
+        topicCard.innerHTML = `
+            <i class="fas fa-folder topic-icon"></i>
+            <div class="topic-name">${topicName}</div>
+            <div class="topic-count">${Object.keys(topicQuizzes).length} quizzes • ${totalQuestions} questions</div>
+        `;
+        topicCard.addEventListener('click', () => selectTopic(topicName));
+        
+        topicGrid.appendChild(topicCard);
+    });
 }
 
-async function loadQuestionsForQuiz(quiz) {
+function selectTopic(topic) {
+    console.log(`🎯 Selected topic: ${topic}`);
+    state.selectedTopic = topic;
+    showTopicQuizPage();
+}
+
+function loadTopicQuizzes() {
+    topicQuizGrid.innerHTML = '';
+    
+    if (!state.topicQuizData || 
+        !state.topicQuizData[state.selectedSubject] || 
+        !state.topicQuizData[state.selectedSubject][state.selectedTopic]) {
+        
+        const noQuizzes = document.createElement('div');
+        noQuizzes.className = 'quiz-card';
+        noQuizzes.innerHTML = `
+            <div class="quiz-card-header">
+                <div class="quiz-subject">No Quizzes Available</div>
+            </div>
+            <div class="quiz-details">No quizzes available for this topic.</div>
+        `;
+        topicQuizGrid.appendChild(noQuizzes);
+        return;
+    }
+    
+    const topicQuizzes = state.topicQuizData[state.selectedSubject][state.selectedTopic];
+    
+    Object.keys(topicQuizzes).forEach((quizKey, index) => {
+        const quizData = topicQuizzes[quizKey];
+        const questionCount = quizData.length;
+        
+        const quizCard = document.createElement('div');
+        quizCard.className = 'quiz-card';
+        quizCard.innerHTML = `
+            <div class="quiz-card-header">
+                <div class="quiz-subject">${state.selectedSubject}: ${state.selectedTopic} - Quiz ${index + 1}</div>
+                <div class="quiz-status status-available">Available</div>
+            </div>
+            <div class="quiz-details">${questionCount} questions</div>
+            <div class="quiz-card-footer">
+                <div class="quiz-questions">${questionCount} questions</div>
+                <button class="quiz-action" data-quiz-key="${quizKey}">
+                    Start Quiz
+                </button>
+            </div>
+        `;
+        
+        topicQuizGrid.appendChild(quizCard);
+        
+        const quizActionBtn = quizCard.querySelector('.quiz-action');
+        quizActionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleTopicQuizSelection(quizKey, quizData);
+        });
+    });
+}
+
+// =============================================
+// QUIZ SELECTION AND SETUP
+// =============================================
+
+function handleRandomQuizSelection(quizKey, quizData) {
+    console.log(`🎯 Selected random quiz: ${quizKey}`);
+    
+    state.currentQuiz = {
+        type: 'random',
+        subject: state.selectedSubject,
+        quizKey: quizKey,
+        data: quizData
+    };
+    
+    // Show quiz setup modal
+    showQuizSetupModal();
+}
+
+function handleTopicQuizSelection(quizKey, quizData) {
+    console.log(`🎯 Selected topic quiz: ${quizKey}`);
+    
+    state.currentQuiz = {
+        type: 'topic',
+        subject: state.selectedSubject,
+        topic: state.selectedTopic,
+        quizKey: quizKey,
+        data: quizData
+    };
+    
+    // Show quiz setup modal
+    showQuizSetupModal();
+}
+
+function showQuizSetupModal() {
+    // Update modal label based on quiz type
+    let quizLabel = '';
+    if (state.currentQuiz.type === 'random') {
+        quizLabel = `${state.currentQuiz.subject} - Random Quiz`;
+    } else {
+        quizLabel = `${state.currentQuiz.subject}: ${state.currentQuiz.topic} - Quiz`;
+    }
+    
+    // Add quiz number if available
+    const quizMatch = state.currentQuiz.quizKey.match(/\d+/);
+    if (quizMatch) {
+        quizLabel += ` ${quizMatch[0]}`;
+    }
+    
+    selectedQuizLabel.textContent = `Quiz: ${quizLabel}`;
+    
+    // Open modal
+    openModal(setupModal);
+}
+
+function handleQuizSetup(e) {
+    e.preventDefault();
+    
+    const duration = parseInt(durationSelect.value);
+    
+    // Save quiz setup
+    state.quizSetup = {
+        duration: duration,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('aPlusBuddyQuizSetup', JSON.stringify(state.quizSetup));
+    
+    // Close setup modal
+    closeModal(setupModal);
+    
+    // Load and start the quiz
+    loadQuestionsForQuiz();
+}
+
+// =============================================
+// QUIZ EXECUTION
+// =============================================
+
+async function loadQuestionsForQuiz() {
     try {
-        console.log(`📥 Loading questions for ${quiz.subject} - ${quiz.topic} - ${quiz.quizNumber}`);
+        console.log(`📥 Loading questions...`);
         
-        const response = await fetch('questions.json');
-        
-        if (response.ok) {
-            const data = await response.json();
-            
-            if (data[quiz.subject]) {
-                const isTopicBased = ["Mathematics", "Physics", "Chemistry", "Biology"].includes(quiz.subject);
-                let questions = [];
-                
-                if (isTopicBased) {
-                    // Topic-based subject: use specific topic
-                    if (data[quiz.subject][quiz.topic] && data[quiz.subject][quiz.topic][quiz.quizNumber]) {
-                        questions = data[quiz.subject][quiz.topic][quiz.quizNumber];
-                    }
-                } else {
-                    // Non-topic subject: use "Default"
-                    if (data[quiz.subject]["Default"] && data[quiz.subject]["Default"][quiz.quizNumber]) {
-                        questions = data[quiz.subject]["Default"][quiz.quizNumber];
-                    }
-                }
-                
-                if (questions.length > 0) {
-                    state.questions = questions;
-                    console.log(`✓ Loaded ${state.questions.length} questions`);
-                } else {
-                    console.log("No questions found, using default");
-                    state.questions = defaultQuestions;
-                }
-            } else {
-                state.questions = defaultQuestions;
-            }
+        // Use the quiz data from currentQuiz
+        if (state.currentQuiz && state.currentQuiz.data) {
+            state.questions = state.currentQuiz.data;
+            console.log(`✓ Loaded ${state.questions.length} questions`);
         } else {
+            console.log("No questions found, using default");
             state.questions = defaultQuestions;
         }
         
@@ -539,7 +825,13 @@ function initializeQuiz() {
     state.userAnswers = {};
     
     // Set quiz subject title
-    quizSubjectTitle.textContent = state.currentQuiz.subject;
+    let quizTitle = '';
+    if (state.currentQuiz.type === 'random') {
+        quizTitle = state.currentQuiz.subject;
+    } else {
+        quizTitle = `${state.currentQuiz.subject}: ${state.currentQuiz.topic}`;
+    }
+    quizSubjectTitle.textContent = quizTitle;
     
     // Set time limit if applicable
     if (state.quizSetup && state.quizSetup.duration > 0) {
@@ -778,7 +1070,7 @@ function finishQuiz() {
     correctCount.textContent = correctCountValue;
     totalQuestions.textContent = totalQuestionsCount;
     
-    // SHOW AD (with smart refresh) - NEW
+    // SHOW AD (with smart refresh)
     showAd();
     
     // Show results modal
@@ -817,257 +1109,6 @@ function updateTimerDisplay() {
     } else if (state.timeRemaining < 300) {
         quizTimer.classList.add('timer-warning');
     }
-}
-
-// =============================================
-// SUBJECT AND TOPIC MANAGEMENT
-// =============================================
-
-function hideAllPages() {
-    homePage.classList.add('hidden');
-    quizSelectionPage.classList.add('hidden');
-    quizScreen.classList.add('hidden');
-}
-
-function showSubjectModal() {
-    openModal(subjectModal);
-    populateSubjectList();
-}
-
-function populateSubjectList(filter = '') {
-    subjectList.innerHTML = '';
-    
-    const filteredSubjects = subjects.filter(subject => 
-        subject.toLowerCase().includes(filter.toLowerCase())
-    );
-    
-    filteredSubjects.forEach(subject => {
-        const item = document.createElement('div');
-        item.className = 'search-item';
-        item.textContent = subject;
-        item.addEventListener('click', () => selectSubject(subject));
-        subjectList.appendChild(item);
-    });
-    
-    if (filteredSubjects.length === 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'search-item';
-        noResults.textContent = 'No subjects found';
-        noResults.style.textAlign = 'center';
-        noResults.style.color = 'var(--gray)';
-        subjectList.appendChild(noResults);
-    }
-}
-
-function filterSubjects() {
-    populateSubjectList(subjectSearch.value);
-}
-
-async function selectSubject(subject) {
-    state.selectedSubject = subject;
-    selectedSubjectLabel.textContent = `Subject: ${subject}`;
-    
-    // Load topics for this subject
-    await loadTopicsForSubject(subject);
-    
-    // Load quiz numbers for the first topic
-    if (topicSelect.value) {
-        await loadQuizNumbers(subject, topicSelect.value);
-    }
-    
-    // Close subject modal and open setup modal
-    closeModal(subjectModal);
-    openModal(setupModal);
-}
-
-async function loadTopicsForSubject(subject) {
-    try {
-        // Clear existing options
-        topicSelect.innerHTML = '';
-        
-        // Check if this is a topic-based subject
-        const isTopicBased = ["Mathematics", "Physics", "Chemistry", "Biology"].includes(subject);
-        
-        // Try to load from questions.json
-        const response = await fetch('questions.json');
-        
-        if (response.ok) {
-            const data = await response.json();
-            
-            if (data[subject]) {
-                if (isTopicBased) {
-                    // For topic-based subjects: DON'T show "All Topics"
-                    const topics = Object.keys(data[subject]);
-                    
-                    topics.forEach(topic => {
-                        const option = document.createElement('option');
-                        option.value = topic;
-                        option.textContent = topic;
-                        topicSelect.appendChild(option);
-                    });
-                    
-                    // Don't add "All Topics" option
-                } else {
-                    // For non-topic subjects: Only show "All Topics"
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = 'All Topics';
-                    defaultOption.textContent = 'All Topics';
-                    topicSelect.appendChild(defaultOption);
-                }
-            } else {
-                // Fallback: Use default topics
-                addFallbackTopicOptions(subject, isTopicBased);
-            }
-        } else {
-            // JSON not found, use fallback
-            addFallbackTopicOptions(subject, isTopicBased);
-        }
-        
-        // Add event listener for topic change
-        topicSelect.addEventListener('change', async () => {
-            await loadQuizNumbers(subject, topicSelect.value);
-        });
-        
-        // Load quiz numbers for the first topic
-        if (topicSelect.value) {
-            await loadQuizNumbers(subject, topicSelect.value);
-        }
-        
-    } catch (error) {
-        console.error("Error loading topics:", error);
-        addFallbackTopicOptions(subject, ["Mathematics", "Physics", "Chemistry", "Biology"].includes(subject));
-    }
-}
-
-function addFallbackTopicOptions(subject, isTopicBased) {
-    if (isTopicBased) {
-        // Topic-based subjects
-        const defaultTopics = {
-            "Mathematics": ["Algebra", "Geometry", "Calculus", "Trigonometry"],
-            "Physics": ["Mechanics", "Thermodynamics", "Optics", "Electricity"],
-            "Chemistry": ["Organic", "Inorganic", "Physical", "Analytical"],
-            "Biology": ["Genetics", "Ecology", "Anatomy", "Microbiology"]
-        };
-        
-        if (defaultTopics[subject]) {
-            defaultTopics[subject].forEach(topic => {
-                const option = document.createElement('option');
-                option.value = topic;
-                option.textContent = topic;
-                topicSelect.appendChild(option);
-            });
-        }
-    } else {
-        // Non-topic subjects
-        const defaultOption = document.createElement('option');
-        defaultOption.value = 'All Topics';
-        defaultOption.textContent = 'All Topics';
-        topicSelect.appendChild(defaultOption);
-    }
-}
-
-async function loadQuizNumbers(subject, topic) {
-    try {
-        // Clear existing options
-        quizNumberSelect.innerHTML = '';
-        
-        // Try to load from questions.json
-        const response = await fetch('questions.json');
-        
-        if (response.ok) {
-            const data = await response.json();
-            
-            if (data[subject]) {
-                const isTopicBased = ["Mathematics", "Physics", "Chemistry", "Biology"].includes(subject);
-                let quizData;
-                
-                if (isTopicBased) {
-                    // Topic-based subject: topic is required
-                    if (data[subject][topic]) {
-                        quizData = data[subject][topic];
-                    }
-                } else {
-                    // Non-topic subject: use "Default"
-                    if (data[subject]["Default"]) {
-                        quizData = data[subject]["Default"];
-                    }
-                }
-                
-                if (quizData) {
-                    // Add quiz number options
-                    Object.keys(quizData).forEach(quizNumber => {
-                        const option = document.createElement('option');
-                        option.value = quizNumber;
-                        const questionCount = quizData[quizNumber].length;
-                        option.textContent = `${quizNumber.toUpperCase()} (${questionCount} questions)`;
-                        quizNumberSelect.appendChild(option);
-                    });
-                } else {
-                    // Fallback option
-                    addFallbackQuizOption();
-                }
-            } else {
-                addFallbackQuizOption();
-            }
-        } else {
-            addFallbackQuizOption();
-        }
-        
-    } catch (error) {
-        console.error("Error loading quiz numbers:", error);
-        addFallbackQuizOption();
-    }
-}
-
-function addFallbackQuizOption() {
-    const fallbackOption = document.createElement('option');
-    fallbackOption.value = 'quiz1';
-    fallbackOption.textContent = 'Quiz 1 (50 questions)';
-    quizNumberSelect.appendChild(fallbackOption);
-}
-
-function handleQuizSetup(e) {
-    e.preventDefault();
-    
-    const subject = state.selectedSubject;
-    const topic = topicSelect.value;
-    const quizNumber = quizNumberSelect.value;
-    const duration = parseInt(durationSelect.value);
-    
-    // For non-topic subjects, use "All Topics"
-    const displayTopic = ["Mathematics", "Physics", "Chemistry", "Biology"].includes(subject) 
-        ? topic 
-        : 'All Topics';
-    
-    // Save quiz setup
-    state.quizSetup = {
-        subject: subject,
-        topic: topic,
-        quizNumber: quizNumber,
-        duration: duration,
-        timestamp: new Date().toISOString()
-    };
-    
-    // Save to localStorage
-    localStorage.setItem('aPlusBuddyQuizSetup', JSON.stringify(state.quizSetup));
-    
-    // Create quiz object
-    const quiz = {
-        id: Date.now(),
-        subject: subject,
-        topic: displayTopic,
-        quizNumber: quizNumber,
-        questions: 50, // Assuming 50 questions per quiz
-        isUnlocked: true
-    };
-    
-    state.currentQuiz = quiz;
-    
-    // Close setup modal
-    closeModal(setupModal);
-    
-    // Load and start the quiz
-    loadQuestionsForQuiz(quiz);
 }
 
 // =============================================

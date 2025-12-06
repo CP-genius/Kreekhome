@@ -40,15 +40,71 @@
 
     <!-- Home Page -->
     <div id="homePage" class="home-page hidden">
-        <h1 class="home-title">Welcome </h1>
+        <h1 class="home-title">Welcome to A Plus Buddy</h1>
         <button id="takeQuizBtn" class="take-quiz-btn">Start Quiz</button>
     </div>
 
-    <!-- Quiz Selection Page -->
-    <div id="quizSelectionPage" class="quiz-selection hidden">
-        <h2 id="pageTitle" class="page-title">Available Quizzes</h2>
-        <div id="quizGrid" class="quiz-grid">
-            <!-- Quizzes will be dynamically added here -->
+    <!-- Subject Selection Page -->
+    <div id="subjectSelectionPage" class="subject-selection hidden">
+        <h2 class="page-title">Select Subject</h2>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="subjectSearchInput" class="search-input" placeholder="Search subjects...">
+        </div>
+        <div id="subjectList" class="subject-list">
+            <!-- Subjects will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Quiz Type Selection Page -->
+    <div id="quizTypePage" class="quiz-type-page hidden">
+        <div class="quiz-type-header">
+            <button class="back-btn" id="backToSubjectBtn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2 id="quizTypeSubject" class="page-title">Select Quiz Type</h2>
+        </div>
+        
+        <div class="quiz-type-container">
+            <!-- Quiz Type Selection -->
+            <div class="type-selector">
+                <label for="quizTypeSelect" class="form-label">Select Quiz Type</label>
+                <select id="quizTypeSelect" class="form-select">
+                    <option value="random">Random Quiz</option>
+                    <option value="topic">Topic-Based Quiz</option>
+                </select>
+            </div>
+            
+            <!-- Random Quiz Grid (initially shown) -->
+            <div id="randomQuizGrid" class="quiz-grid">
+                <!-- Random quiz cards will be dynamically added here -->
+            </div>
+            
+            <!-- Topic Grid (initially hidden) -->
+            <div id="topicGrid" class="topic-grid hidden">
+                <!-- Topic cards will be dynamically added here -->
+            </div>
+            
+            <!-- Message when no topic-based quizzes available -->
+            <div id="noTopicsMessage" class="no-topics-message hidden">
+                <i class="fas fa-info-circle"></i>
+                <p>No topic-based quizzes available for this subject.</p>
+                <p>Please select "Random Quiz" instead.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topic Quiz Selection Page -->
+    <div id="topicQuizPage" class="quiz-selection hidden">
+        <div class="quiz-type-header">
+            <button class="back-btn" id="backToTopicsBtn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2 id="topicTitle" class="page-title">Select Quiz</h2>
+        </div>
+        
+        <div class="quiz-grid" id="topicQuizGrid">
+            <!-- Topic quiz cards will be dynamically added here -->
         </div>
     </div>
 
@@ -81,27 +137,6 @@
         </div>
     </div>
 
-    <!-- Modals / Popups -->
-    
-    <!-- Subject Selection Modal -->
-    <div id="subjectModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Select Subject</h3>
-                <button class="modal-close" id="closeSubjectModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="subjectSearch" class="search-input" placeholder="Search subjects...">
-                </div>
-                <div id="subjectList" class="search-list">
-                    <!-- Subjects will be dynamically added here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Quiz Setup Modal -->
     <div id="setupModal" class="modal-overlay">
         <div class="modal">
@@ -112,21 +147,7 @@
             <div class="modal-body">
                 <form id="quizSetupForm">
                     <div class="form-group">
-                        <label class="form-label" id="selectedSubjectLabel">Subject: Mathematics</label>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="topicSelect" class="form-label">Choose Topic</label>
-                        <select id="topicSelect" class="form-select">
-                            <option value="all">All Topics</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="quizNumberSelect" class="form-label">Quiz Set</label>
-                        <select id="quizNumberSelect" class="form-select">
-                            <option value="quiz1">Quiz 1 (50 questions)</option>
-                        </select>
+                        <label class="form-label" id="selectedQuizLabel">Quiz: Mathematics - Random Quiz 1</label>
                     </div>
                     
                     <div class="form-group">
@@ -194,10 +215,9 @@
                 <p style="font-size: 1.2rem; margin-bottom: 10px;">You scored <span id="correctCount">17</span> out of <span id="totalQuestions">20</span> questions</p>
                 <p style="color: var(--gray); margin-bottom: 30px;">Well done! Keep practicing to improve your score.</p>
                 
-                <!-- Ad Container - UPDATED FOR SMART REFRESH -->
+                <!-- Ad Container -->
                 <div id="adContainer" class="ad-container">
                     <div class="ad-label">Advertisement</div>
-                    <!-- Ad will load here dynamically -->
                     <div id="adPlaceholder"></div>
                 </div>
                 
