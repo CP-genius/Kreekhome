@@ -40,45 +40,15 @@
 
     <!-- Home Page -->
     <div id="homePage" class="home-page hidden">
-        <h1 class="home-title">Welcome</h1>
+        <h1 class="home-title">Welcome </h1>
         <button id="takeQuizBtn" class="take-quiz-btn">Start Quiz</button>
     </div>
 
-    <!-- Quiz Type Selection Page (NEW) -->
-    <div id="quizTypePage" class="quiz-type-page hidden">
-        <div class="page-header">
-            <button class="back-btn" id="backToSubjectsBtn">
-                <i class="fas fa-arrow-left"></i> Back to Subjects
-            </button>
-            <h2 id="quizTypeTitle" class="page-title">Select Quiz Type</h2>
-        </div>
-        
-        <!-- Quiz Type Selector -->
-        <div class="quiz-type-selector">
-            <select id="quizTypeSelect" class="quiz-type-dropdown">
-                <option value="random">Random Quiz</option>
-                <option value="topic">Topic-Based Quiz</option>
-            </select>
-        </div>
-        
-        <!-- Cards Container -->
-        <div id="cardsContainer" class="cards-container">
-            <!-- Cards will be dynamically added here -->
-        </div>
-    </div>
-
-    <!-- Topic Quiz Selection Page (NEW) -->
-    <div id="topicQuizPage" class="quiz-type-page hidden">
-        <div class="page-header">
-            <button class="back-btn" id="backToQuizTypeBtn">
-                <i class="fas fa-arrow-left"></i> Back to Topics
-            </button>
-            <h2 id="topicQuizTitle" class="page-title">Select Quiz</h2>
-        </div>
-        
-        <!-- Topic Quiz Cards -->
-        <div id="topicQuizContainer" class="cards-container">
-            <!-- Quiz cards for the selected topic will be added here -->
+    <!-- Quiz Selection Page -->
+    <div id="quizSelectionPage" class="quiz-selection hidden">
+        <h2 id="pageTitle" class="page-title">Available Quizzes</h2>
+        <div id="quizGrid" class="quiz-grid">
+            <!-- Quizzes will be dynamically added here -->
         </div>
     </div>
 
@@ -142,7 +112,21 @@
             <div class="modal-body">
                 <form id="quizSetupForm">
                     <div class="form-group">
-                        <label class="form-label" id="selectedQuizLabel">Quiz: Mathematics - Random Quiz 1</label>
+                        <label class="form-label" id="selectedSubjectLabel">Subject: Mathematics</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="topicSelect" class="form-label">Choose Topic</label>
+                        <select id="topicSelect" class="form-select">
+                            <option value="all">All Topics</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quizNumberSelect" class="form-label">Quiz Set</label>
+                        <select id="quizNumberSelect" class="form-select">
+                            <option value="quiz1">Quiz 1 (50 questions)</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -210,9 +194,10 @@
                 <p style="font-size: 1.2rem; margin-bottom: 10px;">You scored <span id="correctCount">17</span> out of <span id="totalQuestions">20</span> questions</p>
                 <p style="color: var(--gray); margin-bottom: 30px;">Well done! Keep practicing to improve your score.</p>
                 
-                <!-- Banner Ad Container -->
+                <!-- Ad Container - UPDATED FOR SMART REFRESH -->
                 <div id="adContainer" class="ad-container">
                     <div class="ad-label">Advertisement</div>
+                    <!-- Ad will load here dynamically -->
                     <div id="adPlaceholder"></div>
                 </div>
                 
