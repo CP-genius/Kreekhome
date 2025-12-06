@@ -1,169 +1,75 @@
 // =============================================
-// NATIVE ADS MANAGEMENT ONLY
+// AD MANAGEMENT SYSTEM
 // =============================================
 
-// Native Ad Configuration
-const NATIVE_AD_CONFIG = {
-    scriptSrc: "//pl28201116.effectivegatecpm.com/46074e7115c278e921d40938f6b8717b/invoke.js",
-    containerId: "container-46074e7115c278e921d40938f6b8717b",
-    adInterval: 3 // Show ad after every 3 cards
-};
+let lastAdRefreshTime = 0;
+const AD_COOLDOWN = 30000; // 30 seconds minimum between refreshes
 
-let nativeAdCounter = 0;
-let nativeAdScriptLoaded = false;
-
-// Create native ad slot with improved loading
-function createNativeAdSlot() {
-    nativeAdCounter++;
-    const uniqueId = `${NATIVE_AD_CONFIG.containerId}-${nativeAdCounter}`;
+// Function to load a fresh ad
+function loadFreshAd() {
+    console.log("🔄 Loading fresh ad for new impression...");
     
-    console.log(`📢 Creating native ad slot #${nativeAdCounter} (ID: ${uniqueId})`);
-    
-    const adContainer = document.createElement('div');
-    adContainer.className = 'native-ad-container';
-    adContainer.setAttribute('data-ad-slot', uniqueId);
-    adContainer.innerHTML = `
-        <div class="ad-label">Advertisement</div>
-        <div id="${uniqueId}" class="native-ad-slot">
-            <div class="ad-loading">
-                <div class="spinner"></div>
-                <p>Loading advertisement...</p>
-                <small>If ad doesn't load, please disable ad blocker</small>
-            </div>
-        </div>
-    `;
-    
-    // Load ad script with delay
-    setTimeout(() => {
-        loadNativeAdScript(uniqueId);
-    }, 300);
-    
-    return adContainer;
-}
-
-// Load native ad script
-function loadNativeAdScript(containerId) {
-    console.log(`🔄 Loading native ad for container: ${containerId}`);
-    
-    if (!nativeAdScriptLoaded) {
-        // Load the main script if not already loaded
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = NATIVE_AD_CONFIG.scriptSrc;
-        script.async = true;
-        script.defer = true;
-        script.setAttribute('data-cfasync', 'false');
-        
-        script.onload = () => {
-            console.log('✅ Native ad script loaded successfully');
-            nativeAdScriptLoaded = true;
-            markAdAsLoaded(containerId);
-        };
-        
-        script.onerror = (error) => {
-            console.error('❌ Failed to load native ad script:', error);
-            showAdFallback(containerId, 'Failed to load ad script');
-        };
-        
-        document.body.appendChild(script);
-    } else {
-        // Script already loaded, just mark as loaded
-        markAdAsLoaded(containerId);
-    }
-}
-
-// Mark ad as loaded (or show fallback)
-function markAdAsLoaded(containerId) {
-    const container = document.getElementById(containerId);
-    if (container) {
-        // Give the ad script time to populate the container
-        setTimeout(() => {
-            const hasContent = container.children.length > 1 || 
-                               container.innerHTML.includes('iframe') ||
-                               container.innerHTML.length > 500;
-            
-            if (!hasContent) {
-                console.warn(`⚠️ Container ${containerId} appears empty, showing fallback`);
-                showAdFallback(containerId, 'No ad content received');
-            } else {
-                console.log(`✅ Ad content detected in ${containerId}`);
-            }
-        }, 2000);
-    }
-}
-
-// Show fallback if ad fails to load
-function showAdFallback(containerId, reason) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    console.log(`🔄 Showing fallback for ${containerId}: ${reason}`);
-    
-    container.innerHTML = `
-        <div class="ad-fallback">
-            <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 2.5rem; color: #f59e0b; margin-bottom: 10px;">📢</div>
-                <h3 style="color: #333; margin-bottom: 10px;">Advertisement</h3>
-                <p style="color: #666; margin-bottom: 15px;">This space is reserved for advertisements</p>
-                <div style="background: #f3f4f6; padding: 10px; border-radius: 6px;">
-                    <small style="color: #9ca3af;">Native Ad - 300x250</small>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Insert native ads between cards
-function insertNativeAds(container, cards, cardType) {
-    console.log(`📊 Inserting native ads: ${cards.length} cards, type: ${cardType}`);
-    
-    container.innerHTML = '';
-    
-    if (cards.length === 0) {
-        container.innerHTML = `
-            <div class="no-quizzes-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>No ${cardType} available</p>
-            </div>
-        `;
+    const placeholder = document.getElementById('adPlaceholder');
+    if (!placeholder) {
+        console.error("❌ Ad placeholder not found");
         return;
     }
     
-    // NEW: Always show at least one ad if we have cards
-    // Show ad after first card if we have few cards
-    const showAdAfterFirst = cards.length <= NATIVE_AD_CONFIG.adInterval;
+    // Clear any existing content
+    placeholder.innerHTML = '';
     
-    cards.forEach((card, index) => {
-        // Add the quiz/topic card
-        container.appendChild(card);
-        
-        // Determine if we should show an ad
-        let shouldShowAd = false;
-        
-        if (showAdAfterFirst && index === 0) {
-            // Show ad after first card when we have few cards
-            shouldShowAd = true;
-            console.log(`➕ Adding ad after first card (few cards scenario)`);
-        } else if ((index + 1) % NATIVE_AD_CONFIG.adInterval === 0 && index !== cards.length - 1) {
-            // Original logic: after every N cards
-            shouldShowAd = true;
-            console.log(`➕ Adding ad after card ${index + 1} (every ${NATIVE_AD_CONFIG.adInterval} cards)`);
-        }
-        
-        if (shouldShowAd) {
-            const ad = createNativeAdSlot();
-            container.appendChild(ad);
-            console.log(`✅ Native ad inserted at position ${index + 1}`);
-        }
-    });
+    // Create new ad script
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.textContent = `
+        atOptions = {
+            'key' : '49f2a402e67de18641783843fe0fa8f0',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+        };
+    `;
     
-    // Add one more ad at the end if we have many cards
-    if (cards.length >= NATIVE_AD_CONFIG.adInterval * 2) {
-        console.log(`➕ Adding extra ad at the end (many cards)`);
-        container.appendChild(createNativeAdSlot());
+    // Create second script
+    const invokeScript = document.createElement('script');
+    invokeScript.type = 'text/javascript';
+    invokeScript.src = '//www.highperformanceformat.com/49f2a402e67de18641783843fe0fa8f0/invoke.js';
+    
+    // Add to placeholder
+    placeholder.appendChild(adScript);
+    placeholder.appendChild(invokeScript);
+    
+    // Update last refresh time
+    lastAdRefreshTime = Date.now();
+    
+    console.log("✅ Fresh ad loaded - WILL count as new impression");
+}
+
+// Function to check if we should show a new ad
+function shouldShowNewAd() {
+    const now = Date.now();
+    const timeSinceLastAd = now - lastAdRefreshTime;
+    
+    // If it's been more than cooldown time, show new ad
+    if (timeSinceLastAd > AD_COOLDOWN) {
+        console.log(`✅ Ready for new ad (${Math.round(timeSinceLastAd/1000)}s since last)`);
+        return true;
     }
     
-    console.log(`🎯 Total native ads inserted: ${container.querySelectorAll('.native-ad-container').length}`);
+    // Otherwise, show existing ad
+    console.log(`⏳ Ad cooldown: ${Math.round((AD_COOLDOWN - timeSinceLastAd)/1000)}s remaining`);
+    return false;
+}
+
+// Function to show ad (smart refresh)
+function showAd() {
+    if (shouldShowNewAd()) {
+        loadFreshAd();
+    } else {
+        console.log("📦 Using existing ad (within cooldown period)");
+        // Ad is already loaded from previous quiz
+    }
 }
 
 // =============================================
@@ -185,10 +91,11 @@ const state = {
     timeRemaining: 0,
     timerInterval: null,
     questions: [],
-    randomData: {},
-    questionsData: {}
+    randomData: {},      // For random quizzes
+    questionsData: {}    // For topic-based quizzes
 };
 
+// Sample Subjects
 const subjects = [
     "Mathematics", "English Language", "Physics", "Chemistry", "Biology",
     "Economics", "Geography", "History", "Government", "Commerce",
@@ -196,6 +103,7 @@ const subjects = [
     "Islamic Religious Studies", "Further Mathematics", "French", "Agricultural Science"
 ];
 
+// Default sample questions (fallback if JSON fails)
 const defaultQuestions = [
     {
         id: 1,
@@ -217,20 +125,6 @@ const defaultQuestions = [
         options: ["x = 5", "x = 10", "x = 7.5", "x = 5.5"],
         answer: 0,
         explanation: "Subtract 5 from both sides: 2x = 10. Divide both sides by 2: x = 5."
-    },
-    {
-        id: 4,
-        text: "What is 15% of 200?",
-        options: ["15", "30", "45", "60"],
-        answer: 1,
-        explanation: "15% of 200 = 0.15 × 200 = 30."
-    },
-    {
-        id: 5,
-        text: "Simplify: (3x²)(4x³)",
-        options: ["7x⁵", "12x⁵", "7x⁶", "12x⁶"],
-        answer: 1,
-        explanation: "Multiply coefficients: 3 × 4 = 12. Add exponents: 2 + 3 = 5. Result: 12x⁵."
     }
 ];
 
@@ -255,7 +149,7 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const homeNavBtn = document.getElementById('homeNavBtn');
 
-// Modals
+// Modal Elements
 const subjectModal = document.getElementById('subjectModal');
 const subjectSearch = document.getElementById('subjectSearch');
 const subjectList = document.getElementById('subjectList');
@@ -289,7 +183,7 @@ const correctToast = document.getElementById('correctToast');
 const incorrectToast = document.getElementById('incorrectToast');
 const unansweredToast = document.getElementById('unansweredToast');
 
-// New screens
+// New screens (DUAL QUIZ SYSTEM)
 const quizTypePage = document.getElementById('quizTypePage');
 const backToSubjectsBtn = document.getElementById('backToSubjectsBtn');
 const quizTypeTitle = document.getElementById('quizTypeTitle');
@@ -306,19 +200,30 @@ const topicQuizContainer = document.getElementById('topicQuizContainer');
 // =============================================
 
 function initApp() {
-    console.log("🚀 A Plus Buddy Initializing (Native Ads Only)...");
+    console.log("🚀 A Plus Buddy Initializing...");
     
     waveProgress.addEventListener('transitionend', function() {
+        console.log("✓ Loading animation complete (transitionend event)");
+        
+        // Hide the progress bar
         waveProgress.style.display = 'none';
+        
+        // Show Continue button
         continueBtn.classList.remove('hidden');
         continueBtn.style.display = 'flex';
+        console.log("✓ Showing Continue button");
     });
     
+    // Start loading animation after a short delay
     setTimeout(() => {
         waveProgress.classList.add('complete');
+        console.log("Loading animation started...");
     }, 500);
 
+    // Set up event listeners
     setupEventListeners();
+    
+    console.log("✓ Event listeners initialized");
 }
 
 function setupEventListeners() {
@@ -339,7 +244,7 @@ function setupEventListeners() {
     closeSetupModal.addEventListener('click', () => closeModal(setupModal));
     quizSetupForm.addEventListener('submit', handleQuizSetup);
     
-    // New navigation
+    // New navigation (DUAL QUIZ SYSTEM)
     backToSubjectsBtn.addEventListener('click', showSubjectModal);
     backToQuizTypeBtn.addEventListener('click', goToQuizTypeSelection);
     
@@ -382,38 +287,48 @@ function setupEventListeners() {
 // =============================================
 
 function handleContinue() {
+    console.log("🎯 User clicked Continue");
+    
+    // Show loading state IN THE BUTTON ONLY
     continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
     continueBtn.disabled = true;
     
+    // Load quiz data (DUAL QUIZ SYSTEM)
     loadQuizData();
     
+    // Go to homepage after short delay
     setTimeout(() => {
         hideLoadingScreen();
         showHomePage();
+        
+        // Reset button state
         continueBtn.innerHTML = '<i class="fas fa-play-circle"></i> Continue';
         continueBtn.disabled = false;
+        
+        console.log("✅ Redirected to homepage");
     }, 1000);
 }
 
+// DUAL QUIZ SYSTEM: Load both JSON files
 async function loadQuizData() {
     try {
-        console.log("📥 Loading quiz data...");
+        console.log("📥 Loading quiz data (dual system)...");
         
-        // Load random.json
+        // Load random.json for random quizzes
         const randomResponse = await fetch('random.json');
         if (randomResponse.ok) {
             state.randomData = await randomResponse.json();
-            console.log("✓ Loaded random.json");
+            console.log("✓ Loaded random.json for random quizzes");
         } else {
             console.error("Failed to load random.json");
             state.randomData = {};
         }
         
-        // Load questions.json
+        // Load questions.json for topic-based quizzes
         const questionsResponse = await fetch('questions.json');
         if (questionsResponse.ok) {
             state.questionsData = await questionsResponse.json();
-            console.log("✓ Loaded questions.json");
+            console.log("✓ Loaded questions.json for topic-based quizzes");
         } else {
             console.error("Failed to load questions.json");
             state.questionsData = {};
@@ -427,7 +342,11 @@ async function loadQuizData() {
 }
 
 function hideLoadingScreen() {
+    console.log("🎬 Hiding loading screen...");
+    
+    // Fade out the entire loading screen
     loadingScreen.style.opacity = '0';
+    
     setTimeout(() => {
         loadingScreen.style.display = 'none';
         mainHeader.classList.remove('hidden');
@@ -449,18 +368,20 @@ function showHomePage() {
     hideAllPages();
     homePage.classList.remove('hidden');
     state.currentPage = 'home';
+    console.log("✅ Homepage visible");
 }
 
 function goToHomePage() {
     showHomePage();
 }
 
+// NEW NAVIGATION: Go back to quiz type selection
 function goToQuizTypeSelection() {
     showQuizTypePage();
 }
 
 // =============================================
-// QUIZ TYPE SELECTION PAGE
+// DUAL QUIZ SYSTEM: QUIZ TYPE SELECTION PAGE
 // =============================================
 
 async function showQuizTypePage() {
@@ -468,19 +389,27 @@ async function showQuizTypePage() {
     quizTypePage.classList.remove('hidden');
     state.currentPage = 'quizType';
     
+    // Update page title
     quizTypeTitle.textContent = `${state.selectedSubject} Quizzes`;
+    
+    // Set default quiz type
     quizTypeSelect.value = 'random';
     state.quizType = 'random';
     
-    if (Object.keys(state.randomData).length === 0) {
+    // Reload data if empty
+    if (Object.keys(state.randomData).length === 0 || Object.keys(state.questionsData).length === 0) {
         await loadQuizData();
     }
     
+    // Display appropriate cards
     displayQuizTypeCards();
+    
+    console.log("📚 Showing quiz type selection page");
 }
 
 function handleQuizTypeChange() {
     state.quizType = quizTypeSelect.value;
+    console.log(`🔄 Quiz type changed to: ${state.quizType}`);
     displayQuizTypeCards();
 }
 
@@ -489,13 +418,17 @@ async function displayQuizTypeCards() {
     
     if (state.quizType === 'random') {
         // Show random quiz cards
+        console.log(`🃏 Displaying random quizzes for ${state.selectedSubject}`);
         cardElements.push(...await createRandomQuizCards());
     } else {
         // Show topic-based cards
+        console.log(`📘 Displaying topics for ${state.selectedSubject}`);
         cardElements.push(...await createTopicCards());
     }
     
-    insertNativeAds(cardsContainer, cardElements, state.quizType === 'random' ? 'random quizzes' : 'topics');
+    // Clear and display cards
+    cardsContainer.innerHTML = '';
+    cardElements.forEach(card => cardsContainer.appendChild(card));
 }
 
 async function createRandomQuizCards() {
@@ -504,22 +437,25 @@ async function createRandomQuizCards() {
     
     if (state.randomData[subject]) {
         const quizzes = state.randomData[subject];
+        const quizNumbers = Object.keys(quizzes);
         
-        Object.keys(quizzes).forEach(quizNumber => {
+        console.log(`🎯 Found ${quizNumbers.length} random quizzes for ${subject}`);
+        
+        quizNumbers.forEach(quizNumber => {
             const quiz = quizzes[quizNumber];
             const questionsCount = Array.isArray(quiz) ? quiz.length : 50;
             
             const card = createCard({
                 type: 'random',
                 title: `Random Quiz ${quizNumber.replace('quiz', '')}`,
-                subtitle: `${questionsCount} questions`,
+                subtitle: `${questionsCount} random questions`,
                 onClick: () => handleRandomQuizSelection(quizNumber, questionsCount)
             });
             
             cards.push(card);
         });
     } else {
-        // If no random quizzes found, show message
+        // If no random quizzes found
         cardsContainer.innerHTML = `
             <div class="no-quizzes-message">
                 <i class="fas fa-exclamation-circle"></i>
@@ -541,6 +477,8 @@ async function createTopicCards() {
         const topics = Object.keys(state.questionsData[subject]);
         
         if (topics.length > 0) {
+            console.log(`📚 Found ${topics.length} topics for ${subject}`);
+            
             topics.forEach(topic => {
                 const topicData = state.questionsData[subject][topic];
                 const quizCount = Object.keys(topicData).length;
@@ -581,10 +519,11 @@ async function createTopicCards() {
 }
 
 // =============================================
-// TOPIC QUIZ SELECTION PAGE
+// DUAL QUIZ SYSTEM: TOPIC QUIZ SELECTION PAGE
 // =============================================
 
 function handleTopicSelection(topic) {
+    console.log(`🎯 Topic selected: ${topic}`);
     state.selectedTopic = topic;
     showTopicQuizPage();
 }
@@ -594,13 +533,21 @@ function showTopicQuizPage() {
     topicQuizPage.classList.remove('hidden');
     state.currentPage = 'topicQuiz';
     
+    // Update page title
     topicQuizTitle.textContent = `${state.selectedSubject}: ${state.selectedTopic}`;
+    
+    // Display quiz cards for this topic
     displayTopicQuizCards();
+    
+    console.log(`📖 Showing quizzes for topic: ${state.selectedTopic}`);
 }
 
 function displayTopicQuizCards() {
     const cardElements = createTopicQuizCards();
-    insertNativeAds(topicQuizContainer, cardElements, 'quizzes');
+    
+    // Clear and display cards
+    topicQuizContainer.innerHTML = '';
+    cardElements.forEach(card => topicQuizContainer.appendChild(card));
 }
 
 function createTopicQuizCards() {
@@ -610,13 +557,15 @@ function createTopicQuizCards() {
     
     if (state.questionsData[subject] && state.questionsData[subject][topic]) {
         const quizzes = state.questionsData[subject][topic];
+        const quizNumbers = Object.keys(quizzes);
         
-        Object.keys(quizzes).forEach(quizNumber => {
+        console.log(`🎯 Found ${quizNumbers.length} quizzes for ${topic}`);
+        
+        quizNumbers.forEach(quizNumber => {
             const quiz = quizzes[quizNumber];
             const questionsCount = Array.isArray(quiz) ? quiz.length : 50;
             
             const card = createCard({
-                container: topicQuizContainer,
                 type: 'topic-quiz',
                 title: `Quiz ${quizNumber.replace('quiz', '')}`,
                 subtitle: `${questionsCount} questions`,
@@ -640,10 +589,12 @@ function createTopicQuizCards() {
 }
 
 // =============================================
-// QUIZ SELECTION HANDLERS
+// QUIZ SELECTION HANDLERS (DUAL SYSTEM)
 // =============================================
 
 function handleRandomQuizSelection(quizNumber, questionsCount) {
+    console.log(`🎲 Random quiz selected: ${quizNumber} (${questionsCount} questions)`);
+    
     state.selectedQuiz = {
         subject: state.selectedSubject,
         type: 'random',
@@ -656,6 +607,8 @@ function handleRandomQuizSelection(quizNumber, questionsCount) {
 }
 
 function handleTopicQuizSelection(quizNumber, questionsCount) {
+    console.log(`📘 Topic quiz selected: ${quizNumber} (${questionsCount} questions)`);
+    
     state.selectedQuiz = {
         subject: state.selectedSubject,
         type: 'topic',
@@ -676,6 +629,7 @@ function showQuizSetup() {
     selectedQuizLabel.textContent = state.selectedQuiz.title;
     durationSelect.value = '0';
     openModal(setupModal);
+    console.log("⚙️ Showing quiz setup for:", state.selectedQuiz.title);
 }
 
 function handleQuizSetup(e) {
@@ -697,6 +651,8 @@ function handleQuizSetup(e) {
         questions: state.selectedQuiz.questions,
         isUnlocked: true
     };
+    
+    console.log("✅ Quiz setup complete:", state.currentQuiz);
     
     closeModal(setupModal);
     loadQuestionsForQuiz();
@@ -751,16 +707,18 @@ function createCard(options) {
 
 async function loadQuestionsForQuiz() {
     try {
-        console.log(`📥 Loading questions...`);
+        console.log(`📥 Loading questions for ${state.currentQuiz.type} quiz...`);
         
         let questions = [];
         
         if (state.currentQuiz.type === 'random') {
+            // Load from random.json
             if (state.randomData[state.currentQuiz.subject] && 
                 state.randomData[state.currentQuiz.subject][state.currentQuiz.quizNumber]) {
                 questions = state.randomData[state.currentQuiz.subject][state.currentQuiz.quizNumber];
             }
         } else {
+            // Load from questions.json
             if (state.questionsData[state.currentQuiz.subject] && 
                 state.questionsData[state.currentQuiz.subject][state.currentQuiz.topic] &&
                 state.questionsData[state.currentQuiz.subject][state.currentQuiz.topic][state.currentQuiz.quizNumber]) {
@@ -789,15 +747,21 @@ function showQuizScreen() {
     hideAllPages();
     quizScreen.classList.remove('hidden');
     state.currentPage = 'quiz';
+    
+    // Initialize quiz
     initializeQuiz();
+    console.log("📝 Showing quiz screen");
 }
 
 function initializeQuiz() {
+    // Reset state
     state.currentQuestionIndex = 0;
     state.userAnswers = {};
     
+    // Set quiz subject title
     quizSubjectTitle.textContent = state.currentQuiz.subject;
     
+    // Set time limit if applicable
     if (state.quizSetup && state.quizSetup.duration > 0) {
         state.quizTimeLimit = state.quizSetup.duration * 60;
         state.timeRemaining = state.quizTimeLimit;
@@ -807,12 +771,17 @@ function initializeQuiz() {
         quizTimer.textContent = "∞";
     }
     
+    // Create question grid
     createQuestionGrid(state.questions.length);
+    
+    // Load first question
     loadQuestion(0);
 }
 
 function createQuestionGrid(count) {
     questionGrid.innerHTML = '';
+    
+    // Show max 50 questions, or actual count if less
     const displayCount = Math.min(count, 50);
     
     for (let i = 1; i <= displayCount; i++) {
@@ -822,7 +791,8 @@ function createQuestionGrid(count) {
         questionBox.dataset.questionIndex = i - 1;
         
         questionBox.addEventListener('click', () => {
-            loadQuestion(parseInt(questionBox.dataset.questionIndex));
+            const index = parseInt(questionBox.dataset.questionIndex);
+            loadQuestion(index);
         });
         
         questionGrid.appendChild(questionBox);
@@ -835,14 +805,19 @@ function loadQuestion(index) {
     state.currentQuestionIndex = index;
     const question = state.questions[index];
     
+    // Update question number display
     questionNumber.textContent = `Question ${index + 1} of ${state.questions.length}`;
+    
+    // Update question text
     questionText.textContent = question.text;
     
+    // Update options
     optionsContainer.innerHTML = '';
     question.options.forEach((option, optionIndex) => {
         const optionElement = document.createElement('div');
         optionElement.className = 'option';
         
+        // Check if this option is selected
         if (state.userAnswers[index] === optionIndex) {
             optionElement.classList.add('selected');
         }
@@ -856,7 +831,10 @@ function loadQuestion(index) {
         optionsContainer.appendChild(optionElement);
     });
     
+    // Update question grid highlighting
     updateQuestionGrid();
+    
+    // Update navigation buttons
     prevBtn.disabled = index === 0;
     nextBtn.textContent = index === state.questions.length - 1 ? 'Finish' : 'Next';
 }
@@ -865,28 +843,41 @@ function selectOption(optionIndex) {
     const currentIndex = state.currentQuestionIndex;
     const question = state.questions[currentIndex];
     
+    // Toggle selection if clicking the same option
     if (state.userAnswers[currentIndex] === optionIndex) {
         delete state.userAnswers[currentIndex];
+        // Close explanation modal if open
         closeModal(explanationModal);
     } else {
         state.userAnswers[currentIndex] = optionIndex;
+        
+        // Check if correct
         const isCorrect = optionIndex === question.answer;
         
+        // Show explanation modal
         showExplanationModal(
             isCorrect,
             question.explanation || 'No explanation available.',
             isCorrect ? null : question.options[question.answer]
         );
         
-        showToast(isCorrect ? correctToast : incorrectToast, 
-                 isCorrect ? "Correct! Check explanation." : "Incorrect. Check explanation.");
+        // Show toast
+        if (isCorrect) {
+            showToast(correctToast, "Correct! Check explanation.");
+        } else {
+            showToast(incorrectToast, "Incorrect. Check explanation.");
+        }
     }
     
+    // Reload question to update UI
     loadQuestion(currentIndex);
+    
+    // Update question grid
     updateQuestionGrid();
 }
 
 function showExplanationModal(isCorrect, explanation, correctAnswer = null) {
+    // Update modal content based on correctness
     if (isCorrect) {
         explanationTitle.innerHTML = '<i class="fas fa-check-circle"></i> Correct!';
         explanationTitle.className = 'modal-title correct';
@@ -900,18 +891,23 @@ function showExplanationModal(isCorrect, explanation, correctAnswer = null) {
         resultIcon.className = 'result-icon incorrect';
         resultText.textContent = 'Incorrect. Here\'s the right answer:';
         
+        // Add correct answer to explanation if wrong
         if (correctAnswer !== null) {
             explanation += `<br><br><strong>Correct Answer:</strong> ${correctAnswer}`;
         }
     }
     
+    // Set explanation text
     explanationText.innerHTML = explanation || 'No explanation available.';
+    
+    // Show modal
     openModal(explanationModal);
 }
 
 function handleContinueAfterExplanation() {
     closeModal(explanationModal);
     
+    // Auto-go to next question
     const currentIndex = state.currentQuestionIndex;
     const isLastQuestion = currentIndex === state.questions.length - 1;
     
@@ -948,9 +944,11 @@ function goToNextQuestion() {
     const currentIndex = state.currentQuestionIndex;
     const isLastQuestion = currentIndex === state.questions.length - 1;
     
+    // Close explanation modal if open
     closeModal(explanationModal);
     
     if (isLastQuestion) {
+        // Finish quiz
         finishQuiz();
     } else {
         loadQuestion(currentIndex + 1);
@@ -958,6 +956,7 @@ function goToNextQuestion() {
 }
 
 function finishQuiz() {
+    // Check if all questions are answered
     const answeredCount = Object.keys(state.userAnswers).length;
     const totalQuestionsCount = state.questions.length;
     
@@ -966,6 +965,7 @@ function finishQuiz() {
         return;
     }
     
+    // Calculate score
     let correctCountValue = 0;
     for (let i = 0; i < totalQuestionsCount; i++) {
         if (state.userAnswers[i] === state.questions[i].answer) {
@@ -975,17 +975,25 @@ function finishQuiz() {
     
     const percentage = Math.round((correctCountValue / totalQuestionsCount) * 100);
     
+    // Stop timer if running
     if (state.timerInterval) {
         clearInterval(state.timerInterval);
     }
     
+    // Update results modal
     scorePercentage.textContent = `${percentage}%`;
     correctCount.textContent = correctCountValue;
     totalQuestions.textContent = totalQuestionsCount;
     
+    // SHOW AD (with smart refresh)
+    showAd();
+    
+    // Show results modal
     setTimeout(() => {
         openModal(resultsModal);
-    }, 800);
+        console.log("🎉 Quiz completed! Score:", percentage + "%");
+        console.log(`📊 Score: ${percentage}% (${correctCountValue}/${totalQuestionsCount})`);
+    }, 800); // Small delay to let ad load
 }
 
 function startTimer() {
@@ -997,6 +1005,7 @@ function startTimer() {
         
         if (state.timeRemaining <= 0) {
             clearInterval(state.timerInterval);
+            // Auto-finish quiz when time is up
             finishQuiz();
         }
     }, 1000);
@@ -1008,6 +1017,7 @@ function updateTimerDisplay() {
     
     quizTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     
+    // Add warning styles when time is low
     quizTimer.classList.remove('timer-warning', 'timer-danger');
     if (state.timeRemaining < 60) {
         quizTimer.classList.add('timer-danger');
@@ -1023,6 +1033,7 @@ function updateTimerDisplay() {
 function showSubjectModal() {
     openModal(subjectModal);
     populateSubjectList();
+    console.log("📚 Showing subject selection modal");
 }
 
 function populateSubjectList(filter = '') {
@@ -1056,6 +1067,7 @@ function filterSubjects() {
 
 function selectSubject(subject) {
     state.selectedSubject = subject;
+    console.log(`🎯 Subject selected: ${subject}`);
     closeModal(subjectModal);
     showQuizTypePage();
 }
@@ -1084,6 +1096,18 @@ function showToast(toastElement, message) {
 function openModal(modal) {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // If it's the results modal, ensure ad is loaded
+    if (modal.id === 'resultsModal') {
+        // Give ad a moment to appear
+        setTimeout(() => {
+            const placeholder = document.getElementById('adPlaceholder');
+            if (placeholder && placeholder.innerHTML.trim() === '') {
+                console.log("⚠️ Ad didn't load, retrying...");
+                loadFreshAd();
+            }
+        }, 500);
+    }
 }
 
 function closeModal(modal) {
@@ -1092,70 +1116,7 @@ function closeModal(modal) {
 }
 
 // =============================================
-// DEBUG FUNCTIONS (Optional)
-// =============================================
-
-// Add debug button to manually test native ads
-function addDebugButton() {
-    const debugBtn = document.createElement('button');
-    debugBtn.textContent = '🔍 TEST NATIVE ADS';
-    debugBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999;
-        background: #f59e0b;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-    `;
-    debugBtn.onclick = () => {
-        console.log("🧪 Manually testing native ads...");
-        // Create a test container
-        const testContainer = document.createElement('div');
-        testContainer.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            z-index: 10000;
-            max-width: 400px;
-            width: 90%;
-        `;
-        testContainer.innerHTML = '<h3>Native Ad Test</h3>';
-        testContainer.appendChild(createNativeAdSlot());
-        document.body.appendChild(testContainer);
-        
-        // Add close button
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = 'Close';
-        closeBtn.onclick = () => testContainer.remove();
-        closeBtn.style.cssText = `
-            margin-top: 10px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        `;
-        testContainer.appendChild(closeBtn);
-    };
-    document.body.appendChild(debugBtn);
-}
-
-// =============================================
 // INITIALIZE APP
 // =============================================
 
-window.addEventListener('DOMContentLoaded', function() {
-    initApp();
-    addDebugButton(); // Optional: remove this line in production
-});
+window.addEventListener('DOMContentLoaded', initApp);

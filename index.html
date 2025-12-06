@@ -61,7 +61,7 @@
             </select>
         </div>
         
-        <!-- Cards Container with Native Ads -->
+        <!-- Cards Container -->
         <div id="cardsContainer" class="cards-container">
             <!-- Cards will be dynamically added here -->
         </div>
@@ -76,7 +76,7 @@
             <h2 id="topicQuizTitle" class="page-title">Select Quiz</h2>
         </div>
         
-        <!-- Topic Quiz Cards with Native Ads -->
+        <!-- Topic Quiz Cards -->
         <div id="topicQuizContainer" class="cards-container">
             <!-- Quiz cards for the selected topic will be added here -->
         </div>
@@ -132,7 +132,7 @@
         </div>
     </div>
 
-    <!-- Updated Quiz Setup Modal (Simplified) -->
+    <!-- Quiz Setup Modal -->
     <div id="setupModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
@@ -198,7 +198,7 @@
         </div>
     </div>
 
-    <!-- Results Modal (UPDATED - No banner ad) -->
+    <!-- Results Modal -->
     <div id="resultsModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
@@ -209,6 +209,12 @@
                 <div style="font-size: 4rem; color: var(--primary); margin: 20px 0;" id="scorePercentage">85%</div>
                 <p style="font-size: 1.2rem; margin-bottom: 10px;">You scored <span id="correctCount">17</span> out of <span id="totalQuestions">20</span> questions</p>
                 <p style="color: var(--gray); margin-bottom: 30px;">Well done! Keep practicing to improve your score.</p>
+                
+                <!-- Banner Ad Container -->
+                <div id="adContainer" class="ad-container">
+                    <div class="ad-label">Advertisement</div>
+                    <div id="adPlaceholder"></div>
+                </div>
                 
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
                     <button id="backToQuizzesBtn" class="nav-btn prev-btn" style="flex: 1;">Back to Quizzes</button>
